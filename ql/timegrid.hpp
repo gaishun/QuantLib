@@ -19,7 +19,37 @@
 */
 
 /*! \file timegrid.hpp
-    \brief discrete time grid
+    \brief 时间网格(Time Grid)
+    
+    TimeGrid用于数值方法中的时间离散化
+    是蒙特卡洛和二叉树的核心组件
+    
+    主要用途:
+    1. 蒙特卡洛模拟的时间路径
+    2. 二叉树的时间层
+    3. 有限差分的时间轴
+    
+    构造方式:
+    1. 规则网格: 等间距
+    2. 不规则网格: 包含关键日期
+    
+    使用示例:
+    // 规则网格: 0到1年，100步
+    TimeGrid grid(1.0, 100);
+    
+    // 不规则网格: 包含关键时点
+    std::vector<Time> times = {0, 0.25, 0.5, 1.0};
+    TimeGrid grid(times.begin(), times.end());
+    
+    // 获取时间点
+    Time t = grid[10];  // 第10个时间点
+    Size n = grid.size();  // 网格点数
+    
+    // 蒙特卡洛路径模拟
+    for (Size i = 0; i < grid.size(); i++) {
+        Time t = grid[i];
+        // 计算标的资产在时间t的价值
+    }
 */
 
 #ifndef quantlib_time_grid_hpp

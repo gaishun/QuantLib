@@ -20,7 +20,40 @@
 */
 
 /*! \file normaldistribution.hpp
-    \brief normal, cumulative and inverse cumulative distributions
+    \brief 正态分布(Normal Distribution)
+    
+    正态分布(高斯分布)是概率论中最重要的分布
+    在金融中广泛应用:
+    - Black-Scholes模型假设
+    - 风险管理(VaR)
+    - 蒙特卡洛模拟
+    
+    主要功能:
+    1. 概率密度函数(PDF): N(x)
+    2. 累积分布函数(CDF): Φ(x)
+    3. 逆累积分布函数: Φ⁻¹(p)
+    
+    数学公式:
+    PDF: f(x) = (1/√(2πσ²)) * exp(-(x-μ)²/(2σ²))
+    CDF: Φ(x) = ∫(-∞,x) f(t)dt
+    
+    标准正态分布(μ=0, σ=1):
+    - Φ(0) = 0.5
+    - Φ(1.96) ≈ 0.975
+    - Φ(2.58) ≈ 0.995
+    
+    使用示例:
+    // 标准正态分布
+    NormalDistribution normal;
+    Real pdf = normal(x);           // 概率密度
+    Real cdf = normal.cumulative(x); // 累积分布
+    
+    // 自定义参数
+    NormalDistribution custom(0.0, 2.0);  // μ=0, σ=2
+    
+    // 逆累积分布(分位数)
+    InverseCumulativeNormal invNormal;
+    Real p99 = invNormal(0.99);  // ≈ 2.33
 */
 
 #ifndef quantlib_normal_distribution_hpp

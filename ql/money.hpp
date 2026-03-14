@@ -19,7 +19,38 @@
 */
 
 /*! \file money.hpp
-    \brief cash amount in a given currency
+    \brief 货币金额(Money)类
+    
+    Money类处理不同货币的金额计算
+    是QuantLib多货币系统的核心
+    
+    主要功能:
+    1. 货币金额表示
+       - 金额数值
+       - 货币类型(USD, EUR, CNY等)
+    
+    2. 货币转换
+       - 汇率转换
+       - 自动舍入
+    
+    3. 算术运算
+       - 加减乘除
+       - 货币必须相同才能直接运算
+    
+    使用示例:
+    // 创建货币金额
+    Money m1(100, USD);  // 100美元
+    Money m2(80, EUR);   // 80欧元
+    
+    // 金额操作
+    Money sum = m1 + m1;  // 200美元
+    Money diff = m1 - Money(50, USD);  // 50美元
+    
+    // 货币转换(需要汇率)
+    Money m3 = m1.convert(EUR);  // 转换为欧元
+    
+    // 显示
+    std::cout << m1 << std::endl;  // "100.00 USD"
 */
 
 #ifndef quantlib_money_hpp
