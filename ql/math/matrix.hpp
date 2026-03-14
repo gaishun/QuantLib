@@ -20,7 +20,40 @@
 */
 
 /*! \file matrix.hpp
-    \brief matrix used in linear algebra.
+    \brief 矩阵(Matrix)类
+    
+    Matrix是QuantLib中线性代数的核心类
+    用于各种矩阵运算
+    
+    主要功能:
+    1. 矩阵运算:
+       - 加减乘除
+       - 转置(transpose)
+       - 逆矩阵(inverse)
+       - 行列式(determinant)
+    
+    2. 分解:
+       - LU分解
+       - SVD分解(奇异值分解)
+       - Cholesky分解(对称正定矩阵)
+    
+    3. 特征值/特征向量
+    
+    使用示例:
+    // 创建3x3矩阵
+    Matrix A(3, 3);
+    A(0,0) = 1; A(0,1) = 2; A(0,2) = 3;
+    A(1,0) = 0; A(1,1) = 1; A(1,2) = 4;
+    A(2,0) = 5; A(2,1) = 6; A(2,2) = 0;
+    
+    // 转置
+    Matrix At = transpose(A);
+    
+    // 逆矩阵
+    Matrix Ai = inverse(A);
+    
+    // 矩阵乘法
+    Matrix B = A * At;
 */
 
 #ifndef quantlib_matrix_hpp

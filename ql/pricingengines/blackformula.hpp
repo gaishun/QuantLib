@@ -28,7 +28,40 @@
 */
 
 /*! \file blackformula.hpp
-    \brief Black formula
+    \brief Black 1976 公式
+    
+    Black公式是期权定价的基石，用于计算欧式期权的公允价格
+    基于Black-Scholes模型假设:
+    - 标的资产价格服从几何布朗运动
+    - 无风险利率和波动率为常数
+    - 市场无套利
+    
+    主要函数:
+    1. blackFormula: 标准Black公式
+    2. blackFormulaCashOrNothing: 现金或Nothing期权
+    3. blackFormulaAssetOrNothing: 资产或Nothing期权
+    4. blackFormulaImpliedVol: 隐含波动率计算
+    
+    数学公式:
+    Call = F*N(d1) - K*N(d2)
+    Put = K*N(-d2) - F*N(-d1)
+    
+    其中:
+    d1 = (ln(F/K) + 0.5*sigma^2*T) / (sigma*sqrt(T))
+    d2 = d1 - sigma*sqrt(T)
+    F: 远期价格
+    K: 行权价
+    sigma: 波动率
+    T: 到期时间
+    
+    使用示例:
+    Real F = 100.0;  // 远期价格
+    Real K = 100.0;   // 行权价
+    Real sigma = 0.2;  // 20%波动率
+    Real T = 1.0;    // 1年到期
+    
+    Real call = blackFormula(Option::Call, K, F, sigma*sqrt(T));
+    Real put = blackFormula(Option::Put, K, F, sigma*sqrt(T));
 */
 
 #ifndef quantlib_blackformula_hpp

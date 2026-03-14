@@ -21,7 +21,35 @@
 */
 
 /*! \file blackscholesprocess.hpp
-    \brief Black-Scholes processes
+    \brief Black-Scholes 随机过程
+    
+    BlackScholesProcess是期权定价最核心的随机过程
+    假设标的资产价格满足几何布朗运动:
+    dS = (r - q)S*dt + sigma*S*dW
+    
+    主要组成部分:
+    1. 标的资产价格(S): 股票、期货等
+    2. 无风险利率(r): 用于折现
+    3. 股息收益率(q): 股票分红
+    4. 波动率(sigma): 资产价格的波动程度
+    
+    两种实现:
+    1. BlackScholesMertonProcess: 考虑股息
+    2. BlackScholesProcess: 不考虑股息
+    
+    使用示例:
+    // 创建Black-Scholes过程
+    Handle<Quote> spot = ...;  // 标的价格
+    Handle<YieldTermStructure> r = ...;  // 无风险利率
+    Handle<YieldTermStructure> q = ...;  // 股息收益率
+    Handle<BlackVolTermStructure> vol = ...;  // 波动率
+    
+    ext::shared_ptr<BlackScholesMertonProcess> process = 
+        ext::make_shared<BlackScholesMertonProcess>(spot, q, r, vol);
+    
+    // 用于蒙特卡洛模拟
+    // 用于二叉树
+    // 用于有限差分
 */
 
 #ifndef quantlib_black_scholes_process_hpp
