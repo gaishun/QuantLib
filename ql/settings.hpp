@@ -20,7 +20,38 @@
 */
 
 /*! \file settings.hpp
-    \brief global repository for run-time library settings
+    \brief 全局设置(Global Settings)
+    
+    Settings类管理QuantLib的全局运行参数
+    是单例模式，确保整个程序只有一个实例
+    
+    主要功能:
+    
+    1. EvaluationDate (评估日期):
+       - 控制定价的日期
+       - 默认是today()
+       - 可以设置到未来(用于情景分析)
+       
+    2. EndOfMonth (月末惯例):
+       - 月末日期计算规则
+       - 可以设置为跟随或忽略
+    
+    3. Parameters (参数):
+       - 启用/禁用某些特性
+       
+    使用示例:
+    // 获取Settings实例
+    Settings& s = Settings::instance();
+    
+    // 设置评估日期
+    Date today(15, March, 2025);
+    s.evaluationDate() = today;
+    
+    // 获取当前评估日期
+    Date d = s.evaluationDate();
+    
+    // 设置月末惯例
+    s.endOfMonth() = true;
 */
 
 #ifndef quantlib_settings_hpp
