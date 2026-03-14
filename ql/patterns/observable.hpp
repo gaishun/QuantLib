@@ -23,7 +23,35 @@ FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
 /*! \file observable.hpp
-    \brief observer/observable pattern
+    \brief 观察者模式(Observer/Observable)
+    
+    Observable是QuantLib事件驱动的核心
+    实现观察者模式，用于:
+    
+    1. 参数变化通知:
+       - Handle重链接时自动通知
+       - 期限结构更新时通知
+       - 定价引擎重新计算
+    
+    2. 主要类:
+       - Observable: 可被观察的对象
+       - Observer: 观察者接口
+       - Singleton: 单例模式基类
+    
+    使用示例:
+    class MyObserver : public Observer {
+    public:
+        void update() override {
+            // 参数变化时自动调用
+            std::cout << "Value changed!" << std::endl;
+        }
+    };
+    
+    // 注册观察者
+    observable.registerObserver(myObserver);
+    
+    // 触发更新
+    observable.notifyObservers();
 */
 
 #ifndef quantlib_observable_hpp
