@@ -19,7 +19,43 @@
 */
 
 /*! \file flatforward.hpp
-    \brief flat forward rate term structure
+    \brief 平直收益率曲线(Flat Forward Curve)
+    
+    FlatForward是最简单的收益率曲线
+    假设整个期限内的利率是常数
+    
+    特点:
+    - 简单: 只有一个参数(利率值)
+    - 快速: 计算最简单
+    - 适用: 短期或近似计算
+    
+    与其他曲线比较:
+    - FlatForward: 常数利率
+    - ZeroCurve: 逐点插值
+    - ForwardCurve: 远期利率曲线
+    - InterpolatedCurve: 插值收益率曲线
+    
+    使用示例:
+    // 创建平直曲线
+    Date referenceDate = Date::todaysDate();
+    DayCounter dc = Actual365Fixed();
+    Rate r = 0.03;  // 3%
+    
+    // 方式1: 使用固定值
+    ext::shared_ptr<YieldTermStructure> curve = 
+        ext::make_shared<FlatForward>(referenceDate, r, dc, Continuous);
+    
+    // 方式2: 使用Quote
+    Handle<Quote> forward = ...;
+    ext::shared_ptr<YieldTermStructure> curve2 = 
+        ext::make_shared<FlatForward>(referenceDate, forward, dc);
+    
+    // 获取零息利率
+    Date date1Y = referenceDate + 1*Years;
+    Rate zeroRate = curve->zeroRate(date1Y, Continuous);
+    
+    // 获取折现因子
+    DiscountFactor df = curve->discount(date1Y);
 */
 
 #ifndef quantlib_flat_forward_curve_hpp
