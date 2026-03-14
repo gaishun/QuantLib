@@ -25,7 +25,46 @@
 */
 
 /*! \file date.hpp
-    \brief date- and time-related classes, typedefs and enumerations
+    \brief 日期(Date)和时间相关类
+    
+    Date是QuantLib中处理日期的核心类
+    所有金融计算都离不开日期处理
+    
+    主要功能:
+    1. 日期创建:
+       - Date(15, June, 2025): 日-月-年
+       - Date(2025, 6, 15): 年-月-日
+       - today(): 当前日期
+    
+    2. 日期运算:
+       - + Days: 加天数
+       - + Months/Years: 加月/年
+       - - Days: 减天数
+    
+    3. 日期比较:
+       - ==, !=, <, <=, >, >=
+    
+    4. 日期属性:
+       - weekday(): 星期几
+       - month(): 月份
+       - year(): 年份
+       - dayOfMonth(): 日
+    
+    5. 实用函数:
+       - nextWeekday(): 下一个星期几
+       - previousWeekday(): 上一个星期几
+       - endOfMonth(): 月末
+       - isLeapYear(): 闰年判断
+    
+    使用示例:
+    Date d1(15, June, 2025);
+    Date d2 = d1 + 30*Days;  // 2025年7月15日
+    Date d3 = d1 + 1*Months;  // 2025年7月15日
+    
+    // 计算到期时间(年)
+    Date today = Date::todaysDate();
+    Date expiry(15, June, 2025);
+    Time T = (expiry - today) / 365.0;
 */
 
 #ifndef quantlib_date_hpp

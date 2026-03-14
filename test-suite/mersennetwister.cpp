@@ -1,7 +1,32 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
- Copyright (C) 2003 Ferdinando Ametrano
+ Mersenne Twister 随机数生成器测试
+ 
+ Mersenne Twister (MT) 是QuantLib中最重要的伪随机数生成器
+ 由Matsumoto和Nishimura于1997年发明
+
+ 特点:
+ 1. 周期非常长: 2^19937 - 1 (约10^6000)
+ 2. 随机性好: 通过多项随机性测试
+ 3. 效率高: 比其他PRNG快
+
+ 在QuantLib中的应用:
+ - 蒙特卡洛模拟
+ - 路径生成
+ - Greeks估计
+ 
+ 使用示例:
+ // 创建随机数生成器
+ MersenneTwisterUniformRng rng(seed);
+ 
+ // 生成[0,1)均匀分布随机数
+ Real u = rng.next().value;
+ 
+ // 生成标准正态分布随机数
+ BoxMullerGaussianRng<MersenneTwisterUniformRng> gaussianRng(rng);
+ Real z = gaussianRng.next().value;
+*/
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
