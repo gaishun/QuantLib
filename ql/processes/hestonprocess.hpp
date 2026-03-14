@@ -18,7 +18,37 @@
 */
 
 /*! \file hestonprocess.hpp
-    \brief Heston stochastic process
+    \brief Heston随机波动率过程
+    
+    Heston模型是最流行的随机波动率模型之一
+    解决了Black-Scholes模型波动率为常数的假设
+    
+    数学公式:
+    dS(t,S) = μS*dt + √v*S*dW₁
+    dv(t,S) = κ(θ - v)*dt + σ√v*dW₂
+    dW₁*dW₂ = ρ*dt
+    
+    参数说明:
+    - v: 瞬时方差(variance)
+    - θ: 长期方差(long-term variance)
+    - κ: 均值回归速度(mean reversion speed)
+    - σ: 波动率波动率(vol of vol)
+    - ρ: 波动率与价格的相关系数
+    
+    优点:
+    - 波动率微笑/偏斜
+    - 路径依赖期权定价
+    - 校准准确
+    
+    使用示例:
+    Real v0 = 0.04;   // 初始方差
+    Real kappa = 2.0;  // 均值回归速度
+    Real theta = 0.04; // 长期方差
+    Real sigma = 0.3;  // vol of vol
+    Real rho = -0.7;   // 相关系数
+    
+    ext::shared_ptr<HestonProcess> process = 
+        ext::make_shared<HestonProcess>(v0, kappa, theta, sigma, rho);
 */
 
 #ifndef quantlib_heston_process_hpp

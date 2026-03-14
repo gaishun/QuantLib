@@ -23,7 +23,34 @@
 */
 
 /*! \file fixedratecoupon.hpp
-    \brief Coupon paying a fixed annual rate
+    \brief 固定利率息票(Fixed Rate Coupon)
+    
+    FixedRateCoupon是固定利率债券/互换的利息支付
+    
+    计算公式:
+    Coupon = Nominal × Rate × DayFraction
+    
+    组成要素:
+    1. Nominal(面值): 债券/互换的本金
+    2. Rate(票息率): 年化利率
+    3. DayFraction(计息天数): 
+       - Actual/360
+       - 30/360
+       - Actual/365
+       - Actual/Actual
+    
+    使用示例:
+    // 100万本金，2%年息，每半年付息
+    Real nominal = 1000000;
+    Rate rate = 0.02;
+    DayCounter dc = Thirty360();
+    Date startDate(15, June, 2024);
+    Date endDate(15, December, 2024);
+    
+    FixedRateCoupon coupon(Date::todaysDate(), nominal, rate, dc, 
+                        startDate, endDate);
+    
+    Real payment = coupon.amount();
 */
 
 #ifndef quantlib_fixed_rate_coupon_hpp

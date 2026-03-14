@@ -17,7 +17,33 @@
  or FITNESS FOR A PARTICULAR PURPOSE. See the license for more details. */
 
 /*! \file swapindex.hpp
-    \brief swap-rate indexes
+    \brief 互换利率指数(Swap Index)
+    
+    SwapIndex是利率互换的基准指数
+    用于浮动利率端的定价和估值
+    
+    主要类型:
+    1. EuriborSwap: 欧元互换利率
+    2. LiborSwap: 伦敦银行同业拆借利率互换
+    3. TIBORSwap: 东京银行同业拆借利率互换
+    4. CMS: 固定期限互换(Constant Maturity Swap)
+    
+    使用场景:
+    - 利率互换定价
+    - 利率互换估值
+    - 利率曲线构建
+    
+    使用示例:
+    // 创建EUR 6M 互换利率指数
+    SwapIndex eur6m("EUR", 6*Months, 2, EURCurrency(),
+                   TARGET(), 1*Years, Annual, Actual360());
+    
+    // 获取历史fixing
+    Date today = Settings::instance().evaluationDate();
+    Rate rate = eur6m->fixing(today);
+    
+    // 用于利率互换
+    Vanillaswap swap = MakeVanillaSwap(10*Years, eur6m);
 */
 
 #ifndef quantlib_swapindex_hpp

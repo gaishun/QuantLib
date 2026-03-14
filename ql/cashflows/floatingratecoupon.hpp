@@ -23,7 +23,30 @@
 */
 
 /*! \file floatingratecoupon.hpp
-    \brief Coupon paying a variable index-based rate
+    \brief 浮动利率息票(Floating Rate Coupon)
+    
+    浮动利率息票的利率随基准利率变动
+    
+    基准利率类型:
+    1. LIBOR: 伦敦同业拆借利率
+    2. EURIBOR: 欧元同业拆借利率
+    3. SHIBOR: 上海同业拆借利率
+    4. TIBOR: 东京同业拆借利率
+    
+    利差:
+    - Spread: 额外增加的利差
+    - Gearing: 杠杆系数
+    
+    计算公式:
+    Coupon = Nominal × (Index × Gearing + Spread) × DayFraction
+    
+    使用示例:
+    // 3个月SHIBOR + 1%利差
+    ext::shared_ptr<IborIndex> ibor = ext::make_shared<Shibor>(3*Months);
+    SpreadSpread = 0.01;  // 1%
+    
+    FloatingRateCoupon coupon(..., ibor, Spread);
+    Real payment = coupon.amount();
 */
 
 #ifndef quantlib_floating_rate_coupon_hpp

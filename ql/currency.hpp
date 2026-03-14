@@ -19,7 +19,37 @@
 */
 
 /*! \file currency.hpp
-    \brief Currency specification
+    \brief 货币(Currency)规格定义
+    
+    Currency类定义了各种货币的规格
+    是QuantLib多货币系统的核心
+    
+    主要属性:
+    1. 名称: USD, EUR, CNY等
+    2. 代码: 3字符ISO代码
+    3. 符号: $, €, ¥等
+    4. 小数位数: 通常2位
+    
+    内置货币:
+    - USD: 美元
+    - EUR: 欧元
+    - GBP: 英镑
+    - JPY: 日元
+    - CNY: 人民币
+    - CHF: 瑞士法郎
+    
+    使用示例:
+    // 获取内置货币
+    const Currency& usd = USDCurrency();
+    const Currency& eur = EURCurrency();
+    const Currency& cny = CNYCurrency();
+    
+    // 创建自定义货币
+    Currency custom("CustomCoin", "XCC", 999, "X", "", 8);
+    
+    // 货币信息
+    std::cout << cny.name() << std::endl;  // "Chinese Yuan"
+    std::cout << cny.symbol() << std::endl;   // "¥"
 */
 
 #ifndef quantlib_currency_hpp

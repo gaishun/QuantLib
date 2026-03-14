@@ -20,7 +20,30 @@
 */
 
 /*! \file swap.hpp
-    \brief Interest rate swap
+    \brief 利率互换(Interest Rate Swap)
+    
+    Swap是最重要的利率衍生品之一
+    
+    互换结构:
+    - 固定利率 vs 浮动利率
+    - 固定日期交换现金流
+    
+    类型:
+    - VanillaSwap: 普通利率互换
+    - FixedRateBond: 固定利率债券
+    - FloatingRateBond: 浮动利率债券
+    - BasisSwap: 基差互换(浮动利率交换)
+    - CMS: 固定期限互换
+    - CMBS: 固定期限互换
+    
+    使用示例:
+    // 创建10年期利率互换，固定换浮动
+    Period tenor = 10*Years;
+    Vanillaswap swap = MakeVanillaSwap(tenor, eur6m)
+        .withEffectiveDate(Date::todaysDate())
+        .withFixedLegDayCount(Thirty360())
+        .withFixedLegSchedule(FixingCalendar)
+        .withFixedLegRate(0.02);  // 2%固定利率
 */
 
 #ifndef quantlib_swap_hpp

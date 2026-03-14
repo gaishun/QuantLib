@@ -20,7 +20,36 @@
 */
 
 /*! \file binomialtree.hpp
-    \brief Binomial tree class
+    \brief 二叉树(Binomial Tree)数值方法
+    
+    二叉树是美式期权定价的核心数值方法
+    
+    算法原理:
+    - 将时间离散化为N个时间步
+    - 每个节点表示可能的标的资产价格
+    - 从末端向前倒推(Backward Induction)
+    
+    树形结构:
+    - u: 上涨因子 (u > 1)
+    - d: 下跌因子 (d < 1)
+    - p: 上涨概率
+    
+    常用树形:
+    - Cox-Ross-Rubinstein (CRR): u = e^(σ√Δt)
+    - Jarrow-Rudd: u = e^((r - q - 0.5σ²)Δt + σ√Δt)
+    - Tian: 三阶收敛
+    
+    使用示例:
+    // 创建二叉树
+    BinomialTree<BlackScholesMertonProcess> tree(process, N);
+    
+    // 向前遍历
+    for (Size i = 0; i < N; i++) {
+        for (Size j = 0; j <= i; j++) {
+            Real S = tree.underlying(i, j);
+            // 计算节点值
+        }
+    }
 */
 
 #ifndef quantlib_binomial_tree_hpp

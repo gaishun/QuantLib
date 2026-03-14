@@ -18,7 +18,31 @@
 */
 
 /*! \file hullwhiteprocess.hpp
-    \brief Hull-White stochastic processes
+    \brief Hull-White随机过程
+    
+    Hull-White模型是最流行的利率模型之一
+    能够复现当前收益率曲线的形状
+    
+    数学公式:
+    dr(t) = [θ(t) - a·r(t)]dt + σ·dW(t)
+    
+    参数说明:
+    - a: 均值回归速度(mean reversion)
+    - σ: 波动率(volatility)
+    - θ(t): 时间相关参数，用于拟合收益率曲线
+    
+    特点:
+    - 能够精确拟合初始收益率曲线
+    - 产生合理的利率期限结构
+    - 可用于利率衍生品定价
+    
+    使用示例:
+    Handle<YieldTermStructure> curve = ...;  // 初始收益率曲线
+    Real a = 0.1;  // 均值回归速度
+    Real sigma = 0.01;  // 波动率
+    
+    ext::shared_ptr<HullWhiteProcess> hw = 
+        ext::make_shared<HullWhiteProcess>(curve, a, sigma);
 */
 
 #ifndef quantlib_hull_white_processes_hpp

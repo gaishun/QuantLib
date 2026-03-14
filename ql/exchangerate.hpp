@@ -19,7 +19,31 @@
 */
 
 /*! \file exchangerate.hpp
-    \brief exchange rate between two currencies
+    \brief 汇率(Exchange Rate)类
+    
+    ExchangeRate处理货币之间的汇率转换
+    
+    主要类型:
+    1. Direct Rate: 直接汇率(用户给定)
+    2. Derived Rate: 派生汇率(通过其他汇率计算)
+    
+    功能:
+    - 汇率转换
+    - 汇率链构建
+    - 三角汇率套利
+    
+    使用示例:
+    // 直接汇率
+    ExchangeRate usdEur(USDCurrency(), EURCurrency(), 0.85);
+    
+    // 货币转换
+    Money usd(100, USD);
+    Money eur = usdEur.convert(usd);  // 转换为85欧元
+    
+    // 派生汇率链
+    // USD -> CNY -> EUR
+    // 如果知道 USD->CNY 和 CNY->EUR
+    // 可以派生 USD->EUR
 */
 
 #ifndef quantlib_exchange_rate_hpp
