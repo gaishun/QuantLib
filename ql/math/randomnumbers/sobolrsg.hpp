@@ -20,7 +20,28 @@
 */
 
 /*! \file sobolrsg.hpp
-    \brief Sobol low-discrepancy sequence generator
+    \brief Sobol低差异序列生成器
+    
+    Sobol序列是一种低差异(Quasi-Monte Carlo)序列
+    比伪随机数收敛更快
+    
+    优点:
+    - 收敛速度O(1/N) vs 蒙特卡洛O(1/√N)
+    - 维度独立性
+    - 适合高维问题
+    
+    应用:
+    - 期权定价
+    - 蒙特卡洛模拟
+    - 路径依赖期权
+    
+    使用示例:
+    // 创建Sobol生成器
+    SobolRsg sobol(10);  // 10维
+    
+    // 生成随机数
+    Sample<std::vector<Real>> sample = sobol.nextSequence();
+    std::vector<Real> randomNumbers = sample.value;
 */
 
 #ifndef quantlib_sobol_ld_rsg_hpp

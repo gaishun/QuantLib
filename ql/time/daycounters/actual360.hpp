@@ -18,7 +18,31 @@
 */
 
 /*! \file actual360.hpp
-    \brief act/360 day counter
+    \brief Actual/360天数计数
+    
+    Actual/360是货币市场常用的天数计数规则
+    
+    公式:
+    DayCount = 实际经过天数 / 360
+    
+    特点:
+    - 分子: 实际经过的天数
+    - 分母: 固定360天
+    
+    其他DayCounter:
+    - Actual/365 (Actual/365.25)
+    - 30/360 US
+    - 30/360 Euro
+    - Actual/Actual ISDA
+    
+    使用示例:
+    DayCounter dc = Actual360();
+    
+    Date d1(15, January, 2025);
+    Date d2(15, July, 2025);
+    
+    Time t = dc.yearFraction(d1, d2);
+    // t = 180 / 360 = 0.5年
 */
 
 #ifndef quantlib_actual360_day_counter_h

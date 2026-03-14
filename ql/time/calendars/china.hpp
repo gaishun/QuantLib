@@ -19,7 +19,31 @@
 */
 
 /*! \file china.hpp
-    \brief Chinese calendar
+    \brief 中国日历(Chinese Calendar)
+    
+    中国股市和金融市场的日历
+    
+    节假日:
+    - 周六、周日: 休市
+    - 元旦: 1月1日
+    - 春节: 农历新年(约1月下旬-2月上旬)
+    - 清明节: 4月4-6日
+    - 劳动节: 5月1日
+    - 端午节: 农历五月初五
+    - 中秋节: 农历八月十五
+    - 国庆节: 10月1-7日
+    
+    使用示例:
+    Calendar cal = China();
+    
+    // 判断是否为工作日
+    bool isBusinessDay = cal.isBusinessDay(date);
+    
+    // 获取下一个工作日
+    Date next = cal.advance(date, 1, Days);
+    
+    // 获取上一个工作日
+    Date prev = cal.advance(date, -1, Days);
 */
 
 #ifndef quantlib_chinese_calendar_hpp
