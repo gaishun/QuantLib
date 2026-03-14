@@ -18,7 +18,41 @@
 */
 
 /*! \file volatilitymodel.hpp
-    \brief Volatility term structures
+    \brief 波动率模型(Volatility Model)
+    
+    波动率是期权定价的核心参数
+    
+    主要类型:
+    
+    1. 波动率期限结构:
+       - BlackVolCurve: Black波动率曲线
+       - BlackVolSurface: Black波动率曲面
+       - LocalVolSurface: 本地波动率曲面
+       - StochasticVolModel: 随机波动率模型(SABR, Heston)
+       
+    2. 波动率模型:
+       - BlackVarianceSurface: Black方差曲面
+       - LocalVolatilityEstimator: 本地波动率估计
+    
+    3. 参数模型:
+       - SABR: SABR波动率模型
+       - Heston: Heston随机波动率模型
+       - Bergomi: Bergomi模型
+    
+    使用示例:
+    // 创建波动率曲面
+    Date today = Date::todaysDate();
+    DayCounter dc = Actual365Fixed();
+    
+    // 波动率矩阵(执行价 x 到期时间)
+    std::vector<Real> strikes = {80, 90, 100, 110, 120};
+    std::vector<Date> dates = {today + 1*Months, today + 3*Months, ...};
+    Matrix volMatrix(strikes.size(), dates.size());
+    // 填充波动率...
+    
+    BlackVarianceSurface surface(today, NullCalendar(), 
+                              strikes, dates, volMatrix, dc);
+    surface.setInterpolation<Bilinear>();
 */
 
 #ifndef quantlib_volatility_model_hpp
