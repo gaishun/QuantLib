@@ -1,6 +1,21 @@
-/* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
-
-/*
+/*! \file interpolation.hpp
+    \brief 插值方法(Interpolation)
+    
+    插值是数值计算的核心
+    
+    主要方法:
+    1. LinearInterpolation (线性插值):最简单,连续但不可导
+    2. LogLinearInterpolation (对数线性):适合正数数据
+    3. CubicSplineInterpolation (三次样条):二次导数连续
+    4. BackwardFlat:后向阶梯插值
+    5. ForwardFlat:前向阶梯插值
+    
+    使用示例:
+    std::vector<Real> x = {1, 2, 3, 4};
+    std::vector<Real> y = {1, 4, 9, 16};
+    LinearInterpolation li(x.begin(), x.end(), y.begin());
+    Real y_at_2_5 = li(2.5);  // ≈ 6.25
+*/
  Copyright (C) 2002, 2003 Ferdinando Ametrano
  Copyright (C) 2000, 2001, 2002, 2003 RiskMap srl
  Copyright (C) 2003, 2004, 2005, 2006 StatPro Italia srl

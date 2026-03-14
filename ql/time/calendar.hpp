@@ -22,8 +22,46 @@
 */
 
 /*! \file calendar.hpp
-    \brief %calendar class
-*/
+    \brief 日历(Calendar)类
+    
+    Calendar类处理金融日期相关的计算
+    
+    主要功能:
+    1. 节假日判断:
+       - isBusinessDay(): 是否为交易日
+       - isHoliday(): 是否为节假日
+    
+    2. 日期调整:
+       - adjust(): 调整到最近的工作日
+       - advance(): 前进/后退指定工作日数
+       - businessDaysBetween(): 两个日期之间的工作日数
+    
+    3. 日期生成:
+       - businessDayList(): 某时间段的工作日列表
+       - holidayList(): 某时间段的节假日列表
+    
+    内置日历:
+    - TARGET(): 欧洲欧元系统
+    - USD(): 美国
+    - GBP(): 英国
+    - JPY(): 日本
+    - CNY(): 中国
+    - HK(): 香港
+    
+    使用示例:
+    Calendar cal = China();  // 中国股市日历
+    
+    Date d(15, June, 2025);
+    
+    // 判断是否为交易日
+    if (cal.isBusinessDay(d))
+        std::cout << "交易日" << std::endl;
+    
+    // 调整到下一个工作日
+    Date nextWorkDay = cal.adjust(d, Following);
+    
+    // 前进5个工作日
+    Date d5 = cal.advance(d, 5, Days);
 
 #ifndef quantlib_calendar_hpp
 #define quantlib_calendar_hpp

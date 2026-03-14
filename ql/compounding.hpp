@@ -18,7 +18,44 @@
 */
 
 /*! \file compounding.hpp
-    \brief Compounding enumeration
+    \brief 复利计息方式(Compounding)
+    
+    复利方式是金融计算的核心
+    
+    枚举类型:
+    1. Simple (单利):
+       - 公式: FV = PV × (1 + r × t)
+       - 利息不产生利息
+       
+    2. Compounded (复利):
+       - 公式: FV = PV × (1 + r)^t
+       - 利息产生利息
+       - 每年n次复利: FV = PV × (1 + r/n)^(n×t)
+       
+    3. Continuous (连续复利):
+       - 公式: FV = PV × e^(r×t)
+       - 无限高频复利
+       
+    4. SimpleThenCompounded:
+       - 前期单利，后期复利
+       
+    5. CompoundedThenSimple:
+       - 前期复利，后期单利
+    
+    使用示例:
+    // 100元，5%年利率，1年
+    Real pv = 100;
+    Rate r = 0.05;
+    Time t = 1;
+    
+    // 单利
+    Real simple = pv * (1 + r * t);  // 105
+    
+    // 年复利
+    Real compounded = pv * pow(1 + r, t);  // 105
+    
+    // 连续复利
+    Real continuous = pv * exp(r * t);  // 105.127
 */
 
 #ifndef quantlib_compounding_hpp
