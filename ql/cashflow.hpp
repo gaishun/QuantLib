@@ -19,7 +19,39 @@
 */
 
 /*! \file cashflow.hpp
-    \brief Base class for cash flows
+    \brief 现金流(CashFlow)基类
+    
+    CashFlow代表一笔现金流的支付
+    是所有现金流产品的基类
+    
+    主要类型:
+    
+    1. SimpleCashFlow: 简单现金流
+       - 固定金额的现金流
+       - 例如: 债券的息票支付
+    
+    2. Coupon: 息票(利息支付)
+       - FixedRateCoupon: 固定利率息票
+       - FloatingRateCoupon: 浮动利率息票(利率互换的浮动端)
+    
+    3. Redemption: 到期偿还
+       - 债券到期时的本金偿还
+    
+    4. AmortizingPayment: 分期偿还
+       - 等额本息还款
+    
+    使用示例:
+    // 固定金额现金流
+    Date paymentDate(15, June, 2025);
+    Real amount = 1000.0;
+    ext::shared_ptr<CashFlow> cf = 
+        ext::make_shared<SimpleCashFlow>(amount, paymentDate);
+    
+    // 获取现金流金额
+    Real payment = cf->amount();
+    
+    // 获取现金流日期
+    Date date = cf->date();
 */
 
 #ifndef quantlib_cash_flow_hpp

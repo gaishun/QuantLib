@@ -18,7 +18,37 @@
 */
 
 /*! \file interestrate.hpp
-    \brief Instrument rate class
+    \brief 利率(Interest Rate)类
+    
+    InterestRate类封装了利率的各种计算
+    是QuantLib利率处理的核心类
+    
+    主要功能:
+    1. 复利计息方式(Compounding):
+       - Simple: 单利
+       - Compounded: 复利
+       - Continuous: 连续复利
+       - SimpleThenCompounded: 简单后复利
+    
+    2. 天数计数(Day Counting):
+       - Actual/360, Actual/365
+       - 30/360
+       - Business/252
+       
+    3. 利率转换:
+       - equivalentRate(): 等价利率转换
+       - impliedRate(): 隐含利率计算
+       - compoundFactor(): 复利因子
+    
+    使用示例:
+    // 年利率5%，按年复利
+    InterestRate r(0.05, Actual365Fixed(), Compounded, Annual);
+    
+    // 转换为半年复利
+    InterestRate r2 = r.equivalentRate(Compounded, Semiannual);
+    
+    // 计算复利因子
+    Real factor = r.compoundFactor(1.0);  // 1年后的复利因子
 */
 
 #ifndef quantlib_interest_rate_hpp

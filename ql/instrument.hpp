@@ -19,7 +19,40 @@
 */
 
 /*! \file instrument.hpp
-    \brief Abstract instrument class
+    \brief 金融工具(Instrument)基类
+    
+    Instrument是QuantLib所有金融产品的抽象基类
+    定义了金融工具的通用接口
+    
+    主要功能:
+    1. NPV (Net Present Value): 公允价值计算
+    2. Delta: 标的资产价格变化1单位时的价值变化
+    3. Gamma: Delta的变化率(标的资产价格变化1单位时)
+    4. Vega: 波动率变化1%时的价值变化
+    5. Theta: 时间衰减(每天损失的价值)
+    6. Rho: 利率变化1%时的价值变化
+    
+    派生类:
+    - Option: 期权(VanillaOption, BarrierOption等)
+    - Bond: 债券(FixedRateBond, FloatingRateBond等)
+    - Swap: 互换(InterestRateSwap等)
+    - Forward: 远期
+    - CapFloor: 上限/下限利率期权
+    
+    使用示例:
+    // 创建期权
+    VanillaOption option(payoff, exercise);
+    
+    // 设置定价引擎
+    option.setPricingEngine(engine);
+    
+    // 获取各种greeks
+    Real npv = option.NPV();
+    Real delta = option.delta();
+    Real gamma = option.gamma();
+    Real vega = option.vega();
+    Real theta = option.theta();
+    Real rho = option.rho();
 */
 
 #ifndef quantlib_instrument_hpp
