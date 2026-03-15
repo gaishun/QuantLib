@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -55,11 +55,11 @@ namespace QuantLib {
             // adjust the fixed rate of the swap for the spread on the
             // floating leg (which is not taken into account by the
             // model)
-            VanillaSwap swap = *arguments_.swap;
-            swap.setPricingEngine(ext::make_shared<DiscountingSwapEngine>(model_->termStructure(), false));
-            Spread correction = swap.spread() *
-                std::fabs(swap.floatingLegBPS() / swap.fixedLegBPS());
-            Rate fixedRate = swap.fixedRate() - correction;
+            auto swap = arguments_.swap;
+            swap->setPricingEngine(ext::make_shared<DiscountingSwapEngine>(model_->termStructure(), false));
+            Spread correction = swap->spread() *
+                std::fabs(swap->floatingLegBPS() / swap->fixedLegBPS());
+            Rate fixedRate = swap->fixedRate() - correction;
 
             results_.value =  model_->swaption(arguments_, fixedRate,
                                                range_, intervals_);

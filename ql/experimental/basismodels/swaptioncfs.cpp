@@ -10,7 +10,7 @@ QuantLib is free software: you can redistribute it and/or modify it
 under the terms of the QuantLib license.  You should have received a
 copy of the license along with this program; if not, please email
 <quantlib-dev@lists.sf.net>. The license is also available online at
-<http://quantlib.org/license.shtml>.
+<https://www.quantlib.org/license.shtml>.
 
 This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -91,7 +91,7 @@ namespace QuantLib {
             floatWeights_.push_back(k->amount());
     }
 
-    SwapCashFlows::SwapCashFlows(const ext::shared_ptr<VanillaSwap>& swap,
+    SwapCashFlows::SwapCashFlows(const ext::shared_ptr<FixedVsFloatingSwap>& swap,
                                  const Handle<YieldTermStructure>& discountCurve,
                                  bool contTenorSpread)
     : IborLegCashFlows(swap->floatingLeg(), discountCurve, contTenorSpread) {
@@ -119,7 +119,7 @@ namespace QuantLib {
     SwaptionCashFlows::SwaptionCashFlows(const ext::shared_ptr<Swaption>& swaption,
                                          const Handle<YieldTermStructure>& discountCurve,
                                          bool contTenorSpread)
-    : SwapCashFlows(swaption->underlyingSwap(), discountCurve, contTenorSpread),
+    : SwapCashFlows(swaption->underlying(), discountCurve, contTenorSpread),
       swaption_(swaption) {
         // assemble raw cash flow data...
         Actual365Fixed dc;

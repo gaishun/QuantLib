@@ -12,7 +12,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -30,20 +30,17 @@
 #include <ql/pricingengines/genericmodelengine.hpp>
 #include <ql/methods/finitedifferences/solvers/fdmhestonsolver.hpp>
 #include <ql/methods/finitedifferences/solvers/fdmbackwardsolver.hpp>
-#include <ql/instruments/dividendbarrieroption.hpp>
+#include <ql/instruments/barrieroption.hpp>
 #include <ql/termstructures/volatility/equityfx/localvoltermstructure.hpp>
 
 namespace QuantLib {
-
-    QL_DEPRECATED_DISABLE_WARNING
 
     //! Finite-differences Heston barrier-option rebate helper engine
     /*! \ingroup barrierengines */
     class FdHestonRebateEngine
         : public GenericModelEngine<HestonModel,
-                                    DividendBarrierOption::arguments,
-                                    DividendBarrierOption::results> {
-        QL_DEPRECATED_ENABLE_WARNING
+                                    BarrierOption::arguments,
+                                    BarrierOption::results> {
       public:
         explicit FdHestonRebateEngine(
             const ext::shared_ptr<HestonModel>& model,
@@ -70,7 +67,6 @@ namespace QuantLib {
 
       private:
         DividendSchedule dividends_;
-        bool explicitDividends_;
         const Size tGrid_, xGrid_, vGrid_, dampingSteps_;
         const FdmSchemeDesc schemeDesc_;
         const ext::shared_ptr<LocalVolTermStructure> leverageFct_;

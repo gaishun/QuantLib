@@ -11,7 +11,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
  
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -58,16 +58,15 @@ std::vector<ext::shared_ptr<Helper> > makeHelpers(
         const Period& observationLag,
         const Calendar& calendar,
         const BusinessDayConvention& bdc,
-        const DayCounter& dc,
-        const Handle<YieldTermStructure>& yTS) {
+        const DayCounter& dc) {
 
     std::vector<ext::shared_ptr<Helper> > instruments;
     for (Datum datum : iiData) {
         Date maturity = datum.date;
         Handle<Quote> quote(ext::shared_ptr<Quote>(
                                 new SimpleQuote(datum.rate/100.0)));
-        ext::shared_ptr<Helper> h(new ZeroCouponInflationSwapHelper(
-                quote, observationLag, maturity, calendar, bdc, dc, ii, CPI::AsIndex, yTS));
+        auto h = ext::make_shared<ZeroCouponInflationSwapHelper>(
+                quote, observationLag, maturity, calendar, bdc, dc, ii, CPI::AsIndex);
         instruments.push_back(h);
     }
     return instruments;
@@ -97,24 +96,22 @@ struct CommonVars { // NOLINT(cppcoreguidelines-special-member-functions)
         Settings::instance().evaluationDate() = evaluationDate;
         dayCounter = ActualActual(ActualActual::ISDA);
 
-        Date from(20, July, 2007);
-        Date to(20, November, 2009);
-        Schedule rpiSchedule =
-            MakeSchedule().from(from).to(to)
-            .withTenor(1*Months)
-            .withCalendar(UnitedKingdom())
-            .withConvention(ModifiedFollowing);
-
         ii = ext::make_shared<UKRPI>(cpiTS);
+
+        Schedule rpiSchedule =
+            MakeSchedule()
+            .from(Date(1, July, 2007))
+            .to(Date(1, September, 2009))
+            .withFrequency(Monthly);
 
         Real fixData[] = {
             206.1, 207.3, 208.0, 208.9, 209.7, 210.9,
             209.8, 211.4, 212.1, 214.0, 215.1, 216.8,
-            216.5, 217.2, 218.4, 217.7, 216,
-            212.9, 210.1, 211.4, 211.3, 211.5,
-            212.8, 213.4, 213.4, 213.4, 214.4
+            216.5, 217.2, 218.4, 217.7, 216.0, 212.9,
+            210.1, 211.4, 211.3, 211.5, 212.8, 213.4,
+            213.4, 213.4, 214.4
         };
-        for (Size i=0; i<LENGTH(fixData); ++i) {
+        for (Size i=0; i<std::size(fixData); ++i) {
             ii->addFixing(rpiSchedule[i], fixData[i]);
         }
 
@@ -146,19 +143,18 @@ struct CommonVars { // NOLINT(cppcoreguidelines-special-member-functions)
 
         std::vector<ext::shared_ptr<Helper> > helpers =
             makeHelpers(zciisData, ii,
-                        observationLag, calendar, convention, dayCounter, yTS);
+                        observationLag, calendar, convention, dayCounter);
 
-        Rate baseZeroRate = zciisData[0].rate/100.0;
-        cpiTS.linkTo(ext::shared_ptr<ZeroInflationTermStructure>(
-                  new PiecewiseZeroInflationCurve<Linear>(
-                         evaluationDate, calendar, dayCounter, observationLag,
-                         ii->frequency(), baseZeroRate, helpers)));
+        Date baseDate = ii->lastFixingDate();
+
+        cpiTS.linkTo(ext::make_shared<PiecewiseZeroInflationCurve<Linear>>(
+                         evaluationDate, baseDate, ii->frequency(), dayCounter, helpers));
     }
 
     // teardown
     ~CommonVars() {
         // break circular references and allow curves to be destroyed
-        cpiTS.linkTo(ext::shared_ptr<ZeroInflationTermStructure>());
+        cpiTS.reset();
     }
 };
 
@@ -177,7 +173,6 @@ BOOST_AUTO_TEST_CASE(testCleanPrice) {
     Period contractObservationLag = Period(3,Months);
     CPI::InterpolationType observationInterpolation = CPI::Flat;
     Natural settlementDays = 3;
-    bool growthOnly = true;
 
     Real baseCPI = 206.1;
     // set the schedules
@@ -190,7 +185,7 @@ BOOST_AUTO_TEST_CASE(testCleanPrice) {
                       .withConvention(Unadjusted)
                       .backwards();
 
-    CPIBond bond(settlementDays, notional, growthOnly,
+    CPIBond bond(settlementDays, notional,
                  baseCPI, contractObservationLag, fixedIndex,
                  observationInterpolation, fixedSchedule,
                  fixedRates, fixedDayCount, fixedPaymentConvention);
@@ -198,7 +193,7 @@ BOOST_AUTO_TEST_CASE(testCleanPrice) {
     auto engine = ext::make_shared<DiscountingBondEngine>(common.yTS);
     bond.setPricingEngine(engine);
 
-    Real storedPrice = 384.71666770;
+    Real storedPrice = 396.47045891;
     Real calculated = bond.dirtyPrice();
     Real tolerance = 1.0e-8;
     if (std::fabs(calculated-storedPrice) > tolerance) {
@@ -208,7 +203,7 @@ BOOST_AUTO_TEST_CASE(testCleanPrice) {
                    << "\n  calculated: " << calculated);
     }
 
-    storedPrice = 383.04297558;
+    storedPrice = 394.79676679;
     calculated = bond.cleanPrice();
     if (std::fabs(calculated-storedPrice) > tolerance) {
         BOOST_FAIL("failed to reproduce expected CPI-bond clean price"
@@ -232,7 +227,7 @@ BOOST_AUTO_TEST_CASE(testCPILegWithoutBaseCPI) {
     Period contractObservationLag = Period(3, Months);
     CPI::InterpolationType observationInterpolation = CPI::Flat;
     Natural settlementDays = 3;
-    bool growthOnly = true;
+    bool growthOnly = false;
     Real baseCPI = 206.1;
     // set the schedules
     Date baseDate(1, July, 2007);
@@ -288,7 +283,7 @@ BOOST_AUTO_TEST_CASE(testCPILegWithoutBaseCPI) {
                    << "\n clean npv of leg with explicit baseCPI: " << cleanPriceWithBaseCPI);
     }
     // Compare to expected price
-    Real storedPrice = 383.04297558;
+    Real storedPrice = 394.79676680;
     if (std::fabs(cleanPriceWithBaseDate - storedPrice) > tolerance) {
         BOOST_FAIL("failed to reproduce expected CPI-bond clean price"
                    << std::fixed << std::setprecision(12) << "\n  expected:   " << storedPrice

@@ -15,7 +15,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -89,8 +89,8 @@ namespace QuantLib {
     }
 
 
-    FixedRateLeg::FixedRateLeg(const Schedule& schedule)
-    : schedule_(schedule), paymentCalendar_(schedule.calendar()) {}
+    FixedRateLeg::FixedRateLeg(Schedule schedule)
+    : schedule_(std::move(schedule)), paymentCalendar_(schedule_.calendar()) {}
 
     FixedRateLeg& FixedRateLeg::withNotionals(Real notional) {
         notionals_ = vector<Real>(1,notional);

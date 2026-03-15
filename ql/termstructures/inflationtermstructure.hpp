@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -37,124 +37,130 @@ namespace QuantLib {
       public:
         //! \name Constructors
         //@{
-        InflationTermStructure(Rate baseRate,
-                               const Period& observationLag,
+        InflationTermStructure(Date baseDate,
                                Frequency frequency,
                                const DayCounter& dayCounter = DayCounter(),
-                               ext::shared_ptr<Seasonality> seasonality = {});
+                               ext::shared_ptr<Seasonality> seasonality = {},
+                               Rate baseRate = Null<Rate>());
+
         InflationTermStructure(const Date& referenceDate,
-                               Rate baseRate,
-                               const Period& observationLag,
+                               Date baseDate,
                                Frequency frequency,
-                               const Calendar& calendar = Calendar(),
                                const DayCounter& dayCounter = DayCounter(),
-                               ext::shared_ptr<Seasonality> seasonality = {});
+                               ext::shared_ptr<Seasonality> seasonality = {},
+                               Rate baseRate = Null<Rate>());
+
         InflationTermStructure(Natural settlementDays,
                                const Calendar& calendar,
-                               Rate baseRate,
-                               const Period& observationLag,
+                               Date baseDate,
                                Frequency frequency,
                                const DayCounter& dayCounter = DayCounter(),
-                               ext::shared_ptr<Seasonality> seasonality = {});
+                               ext::shared_ptr<Seasonality> seasonality = {},
+                               Rate baseRate = Null<Rate>());
         //@}
+
+        QL_DEPRECATED_DISABLE_WARNING
+        ~InflationTermStructure() override = default;
+        QL_DEPRECATED_ENABLE_WARNING
 
         //! \name Inflation interface
         //@{
-        //! The TS observes with a lag that is usually different from the
-        //! availability lag of the index.  An inflation rate is given,
-        //! by default, for the maturity requested assuming this lag.
+        /*! \deprecated Do not use; inflation curves always have an explicit
+                        base date now.
+                        Deprecated in version 1.39.
+        */
+        [[deprecated("Do not use; inflation curves always have an explicit base date now.")]]
         virtual Period observationLag() const;
+
         virtual Frequency frequency() const;
         virtual Rate baseRate() const;
 
         //! minimum (base) date
-        /*! Important in inflation since it starts before nominal
-            reference date.  Changes depending whether index is
-            interpolated or not.  When interpolated the base date
-            is just observation lag before nominal.  When not
-            interpolated it is the beginning of the relevant period
-            (hence it is easy to create interpolated fixings from
-             a not-interpolated curve because interpolation, usually,
-             of fixings is forward looking).
+        /*! The last date for which we have information. */
+        virtual Date baseDate() const;
+
+        /*! \deprecated Do not use; inflation curves always have an explicit
+                        base date now.
+                        Deprecated in version 1.39.
         */
-        virtual Date baseDate() const = 0;
+        [[deprecated("Do not use; inflation curves always have an explicit base date now.")]]
+        bool hasExplicitBaseDate() const {
+            return true;
+        }
         //@}
 
-        //! Functions to set and get seasonality.
-        /*! Calling setSeasonality with no arguments means unsetting
-            as the default is used to choose unsetting.
-        */
-        void setSeasonality(const ext::shared_ptr<Seasonality>& seasonality = {});
+        //! \name Seasonality
+        //@{
+        void setSeasonality(const ext::shared_ptr<Seasonality>& seasonality);
         ext::shared_ptr<Seasonality> seasonality() const;
         bool hasSeasonality() const;
+        //@}
 
       protected:
-
-        // This next part is required for piecewise- constructors
-        // because, for inflation, they need more than just the
-        // instruments to build the term structure, since the rate at
-        // time 0-lag is non-zero, since we deal (effectively) with
-        // "forwards".
-        virtual void setBaseRate(const Rate &r) { baseRate_ = r; }
-
-
-        // range-checking
         void checkRange(const Date&,
                         bool extrapolate) const;
         void checkRange(Time t,
                         bool extrapolate) const;
 
         ext::shared_ptr<Seasonality> seasonality_;
+
+        /*! \deprecated Do not use; inflation curves always have an explicit
+                        base date now.
+                        Deprecated in version 1.39.
+        */
+        [[deprecated("Do not use; inflation curves always have an explicit base date now.")]]
         Period observationLag_;
+
         Frequency frequency_;
         mutable Rate baseRate_;
+        // Can be set by subclasses that don't have baseDate available in constructors.
+        Date baseDate_;
     };
 
     //! Interface for zero inflation term structures.
-    // Child classes use templates but do not want that exposed to
-    // general users.
     class ZeroInflationTermStructure : public InflationTermStructure {
       public:
         //! \name Constructors
         //@{
-        ZeroInflationTermStructure(const DayCounter& dayCounter,
-                                   Rate baseZeroRate,
-                                   const Period& lag,
+        ZeroInflationTermStructure(Date baseDate,
                                    Frequency frequency,
-                                   const ext::shared_ptr<Seasonality> &seasonality = {});
+                                   const DayCounter& dayCounter,
+                                   const ext::shared_ptr<Seasonality>& seasonality = {});
 
         ZeroInflationTermStructure(const Date& referenceDate,
-                                   const Calendar& calendar,
-                                   const DayCounter& dayCounter,
-                                   Rate baseZeroRate,
-                                   const Period& lag,
+                                   Date baseDate,
                                    Frequency frequency,
+                                   const DayCounter& dayCounter,
                                    const ext::shared_ptr<Seasonality>& seasonality = {});
 
         ZeroInflationTermStructure(Natural settlementDays,
                                    const Calendar& calendar,
-                                   const DayCounter& dayCounter,
-                                   Rate baseZeroRate,
-                                   const Period& lag,
+                                   Date baseDate,
                                    Frequency frequency,
-                                   const ext::shared_ptr<Seasonality> &seasonality = {});
+                                   const DayCounter& dayCounter,
+                                   const ext::shared_ptr<Seasonality>& seasonality = {});
         //@}
 
         //! \name Inspectors
         //@{
         //! zero-coupon inflation rate.
-        /*! Essentially the fair rate for a zero-coupon inflation swap
-            (by definition), i.e. the zero term structure uses yearly
-            compounding, which is assumed for ZCIIS instrument quotes.
+        /*! The zero term structure uses yearly compounding, which is
+            assumed for ZCIIS instrument quotes.
 
-            \note by default you get the same as lag and interpolation
-            as the term structure.
-            If you want to get predictions of RPI/CPI/etc then use an
-            index.
+            If you want to get predictions of RPI/CPI/etc. use the
+            corresponding index instead; if you need a ZCIIS rate,
+            retrieve it from the instrument.
         */
-        Rate zeroRate(const Date &d, const Period& instObsLag = Period(-1,Days),
+        Rate zeroRate(const Date& d, bool extrapolate = false) const;
+
+        /*! \deprecated Use the overload without a lag instead.
+                        Deprecated in version 1.41.
+        */
+        [[deprecated("Use the overload without a lag instead")]]
+        Rate zeroRate(const Date& d, const Period& instObsLag,
                       bool forceLinearInterpolation = false,
                       bool extrapolate = false) const;
+
         //! zero-coupon inflation rate.
         /*! \warning Since inflation is highly linked to dates (lags,
                      interpolation, months for seasonality, etc) this
@@ -176,43 +182,45 @@ namespace QuantLib {
       public:
         //! \name Constructors
         //@{
-        YoYInflationTermStructure(const DayCounter& dayCounter,
+        YoYInflationTermStructure(Date baseDate,
                                   Rate baseYoYRate,
-                                  const Period& lag,
                                   Frequency frequency,
-                                  bool indexIsInterpolated,
-                                  const ext::shared_ptr<Seasonality> &seasonality = {});
+                                  const DayCounter& dayCounter,
+                                  const ext::shared_ptr<Seasonality>& seasonality = {});
 
         YoYInflationTermStructure(const Date& referenceDate,
-                                  const Calendar& calendar,
-                                  const DayCounter& dayCounter,
+                                  Date baseDate,
                                   Rate baseYoYRate,
-                                  const Period& lag,
                                   Frequency frequency,
-                                  bool indexIsInterpolated,
-                                  const ext::shared_ptr<Seasonality> &seasonality = {});
+                                  const DayCounter& dayCounter,
+                                  const ext::shared_ptr<Seasonality>& seasonality = {});
 
         YoYInflationTermStructure(Natural settlementDays,
                                   const Calendar& calendar,
-                                  const DayCounter& dayCounter,
+                                  Date baseDate,
                                   Rate baseYoYRate,
-                                  const Period& lag,
                                   Frequency frequency,
-                                  bool indexIsInterpolated,
-                                  const ext::shared_ptr<Seasonality> &seasonality = {});
+                                  const DayCounter& dayCounter,
+                                  const ext::shared_ptr<Seasonality>& seasonality = {});
         //@}
 
         //! \name Inspectors
         //@{
         //! year-on-year inflation rate.
-        /*! The forceLinearInterpolation parameter is relative to the
-            frequency of the TS.
-
-            \note this is not the year-on-year swap (YYIIS) rate.
+        /*! This does not return the year-on-year swap (YYIIS) rate.
+            If you need that rate, retrieve it from the corresponding
+            instrument instead.
         */
-        Rate yoyRate(const Date &d, const Period& instObsLag = Period(-1,Days),
+        Rate yoyRate(const Date& d, bool extrapolate = false) const;
+
+        /*! \deprecated Use the overload without a lag instead.
+                        Deprecated in version 1.41.
+        */
+        [[deprecated("Use the overload without a lag instead")]]
+        Rate yoyRate(const Date& d, const Period& instObsLag,
                      bool forceLinearInterpolation = false,
                      bool extrapolate = false) const;
+
         //! year-on-year inflation rate.
         /*! \warning Since inflation is highly linked to dates (lags,
                      interpolation, months for seasonality, etc) this
@@ -224,31 +232,30 @@ namespace QuantLib {
                      bool extrapolate = false) const;
         //@}
 
-        virtual bool indexIsInterpolated() const;
       protected:
         //! to be defined in derived classes
         virtual Rate yoyRateImpl(Time time) const = 0;
-      private:
-        bool indexIsInterpolated_;
     };
 
 
     //! utility function giving the inflation period for a given date
-    std::pair<Date,Date> inflationPeriod(const Date &,
+    std::pair<Date,Date> inflationPeriod(const Date&,
                                          Frequency);
 
     //! utility function giving the time between two dates depending on
     //! index frequency and interpolation, and a day counter
     Time inflationYearFraction(Frequency ,
                                bool indexIsInterpolated,
-                               const DayCounter &,
-                               const Date &, const Date &);
+                               const DayCounter&,
+                               const Date&, const Date&);
 
 
     // inline
 
     inline Period InflationTermStructure::observationLag() const {
+        QL_DEPRECATED_DISABLE_WARNING
         return observationLag_;
+        QL_DEPRECATED_ENABLE_WARNING
     }
 
     inline Frequency InflationTermStructure::frequency() const {
@@ -256,6 +263,7 @@ namespace QuantLib {
     }
 
     inline Rate InflationTermStructure::baseRate() const {
+        QL_REQUIRE(baseRate_ != Null<Real>(), "base rate not available");
         return baseRate_;
     }
 
@@ -265,10 +273,6 @@ namespace QuantLib {
 
     inline bool InflationTermStructure::hasSeasonality() const {
         return static_cast<bool>(seasonality_);
-    }
-
-    inline bool YoYInflationTermStructure::indexIsInterpolated() const {
-        return indexIsInterpolated_;
     }
 
 }

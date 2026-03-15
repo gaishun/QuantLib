@@ -14,7 +14,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -42,11 +42,8 @@ namespace QuantLib {
                                      Rate fixedRate,
                                      const Period& forwardStart)
     : swapTenor_(swapTenor), iborIndex_(index), fixedRate_(fixedRate), forwardStart_(forwardStart),
-      settlementDays_(Null<Natural>()), fixedCalendar_(index->fixingCalendar()),
-      floatCalendar_(index->fixingCalendar()),
-
+      fixedCalendar_(index->fixingCalendar()), floatCalendar_(index->fixingCalendar()),
       floatTenor_(index->tenor()),
-
       floatConvention_(index->businessDayConvention()),
       floatTerminationDateConvention_(index->businessDayConvention()),
 
@@ -86,13 +83,12 @@ namespace QuantLib {
 
         Date endDate = terminationDate_;
         if (endDate == Date()) {
-            if (floatEndOfMonth_)
-                endDate = floatCalendar_.advance(startDate,
-                                                 swapTenor_,
-                                                 ModifiedFollowing,
-                                                 floatEndOfMonth_);
-            else
-                endDate = startDate + swapTenor_;
+            endDate = startDate + swapTenor_;
+            bool maturityEndOfMonth =
+                maturityEndOfMonth_ ? *maturityEndOfMonth_ : floatEndOfMonth_;
+            if (maturityEndOfMonth && allowsEndOfMonth(swapTenor_) &&
+                floatCalendar_.isEndOfMonth(startDate))
+                endDate = floatCalendar_.endOfMonth(endDate);
         }
 
         const Currency& curr = iborIndex_->currency();
@@ -100,18 +96,26 @@ namespace QuantLib {
         if (fixedTenor_ != Period())
             fixedTenor = fixedTenor_;
         else {
+            // When swapTenor_ was cleared by withTerminationDate(),
+            // use the actual swap length for currency-dependent inference.
+            Period tenor = swapTenor_;
+            if (tenor == Period() && endDate > startDate) {
+                // approximate months = days * 12/365, rounded (182 = 365/2)
+                Integer months = (12 * (endDate - startDate) + 182) / 365;
+                tenor = months * Months;
+            }
             if ((curr == EURCurrency()) ||
                 (curr == USDCurrency()) ||
                 (curr == CHFCurrency()) ||
                 (curr == SEKCurrency()) ||
-                (curr == GBPCurrency() && swapTenor_ <= 1 * Years))
+                (curr == GBPCurrency() && tenor <= 1 * Years))
                 fixedTenor = Period(1, Years);
-            else if ((curr == GBPCurrency() && swapTenor_ > 1 * Years) ||
+            else if ((curr == GBPCurrency() && tenor > 1 * Years) ||
                 (curr == JPYCurrency()) ||
-                (curr == AUDCurrency() && swapTenor_ >= 4 * Years))
+                (curr == AUDCurrency() && tenor >= 4 * Years))
                 fixedTenor = Period(6, Months);
             else if ((curr == HKDCurrency() ||
-                     (curr == AUDCurrency() && swapTenor_ < 4 * Years)))
+                     (curr == AUDCurrency() && tenor < 4 * Years)))
                 fixedTenor = Period(3, Months);
             else
                 QL_FAIL("unknown fixed leg default tenor for " << curr);
@@ -153,7 +157,7 @@ namespace QuantLib {
             VanillaSwap temp(type_, 100.00, fixedSchedule,
                              0.0, // fixed rate
                              fixedDayCount, floatSchedule, iborIndex_, floatSpread_, floatDayCount_,
-                             ext::nullopt, useIndexedCoupons_);
+                             paymentConvention_, useIndexedCoupons_);
             if (engine_ == nullptr) {
                 Handle<YieldTermStructure> disc =
                                         iborIndex_->forwardingTermStructure();
@@ -172,7 +176,7 @@ namespace QuantLib {
 
         ext::shared_ptr<VanillaSwap> swap(new VanillaSwap(
             type_, nominal_, fixedSchedule, usedFixedRate, fixedDayCount, floatSchedule, iborIndex_,
-            floatSpread_, floatDayCount_, ext::nullopt, useIndexedCoupons_));
+            floatSpread_, floatDayCount_, paymentConvention_, useIndexedCoupons_));
 
         if (engine_ == nullptr) {
             Handle<YieldTermStructure> disc =
@@ -217,13 +221,19 @@ namespace QuantLib {
     MakeVanillaSwap&
     MakeVanillaSwap::withTerminationDate(const Date& terminationDate) {
         terminationDate_ = terminationDate;
-        swapTenor_ = Period();
+        if (terminationDate != Date())
+            swapTenor_ = Period();
         return *this;
     }
 
     MakeVanillaSwap& MakeVanillaSwap::withRule(DateGeneration::Rule r) {
         fixedRule_ = r;
         floatRule_ = r;
+        return *this;
+    }
+
+    MakeVanillaSwap& MakeVanillaSwap::withPaymentConvention(BusinessDayConvention bdc) {
+        paymentConvention_ = bdc;
         return *this;
     }
 
@@ -321,6 +331,11 @@ namespace QuantLib {
 
     MakeVanillaSwap& MakeVanillaSwap::withFloatingLegEndOfMonth(bool flag) {
         floatEndOfMonth_ = flag;
+        return *this;
+    }
+
+    MakeVanillaSwap& MakeVanillaSwap::withMaturityEndOfMonth(bool flag) {
+        maturityEndOfMonth_ = flag;
         return *this;
     }
 

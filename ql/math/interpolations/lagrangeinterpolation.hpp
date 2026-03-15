@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -41,7 +41,7 @@ namespace QuantLib {
         };
 
         template <class I1, class I2>
-        class LagrangeInterpolationImpl
+        class LagrangeInterpolationImpl final
             : public Interpolation::templateImpl<I1,I2>,
               public UpdatedYInterpolation {
 
@@ -112,7 +112,7 @@ namespace QuantLib {
 
           private:
             template <class Iterator>
-            inline Real _value(const Iterator& yBegin, Real x) const {
+            Real _value(const Iterator& yBegin, Real x) const {
 
                 const Real eps = 10*QL_EPSILON*std::abs(x);
                 const auto iter = std::lower_bound(

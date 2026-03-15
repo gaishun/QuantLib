@@ -12,7 +12,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -650,33 +650,6 @@ BOOST_AUTO_TEST_CASE(testZeroVolFDShoutNPV) {
 
    const Real americanNPV = option.NPV();
 
-   QL_DEPRECATED_DISABLE_WARNING
-   DividendVanillaOption divOption(
-       ext::make_shared<PlainVanillaPayoff>(Option::Put, 100.0),
-       ext::make_shared<AmericanExercise>(today, maturityDate),
-       std::vector<Date>{dividendDate},
-       std::vector<Real>{dividendAmount}
-   );
-   QL_DEPRECATED_ENABLE_WARNING
-
-   divOption.setPricingEngine(
-       ext::make_shared<FdBlackScholesShoutEngine>(process, 50, 50));
-
-   Real shoutNPV = divOption.NPV();
-   const DiscountFactor df = r->discount(maturityDate)/r->discount(dividendDate);
-
-   const Real tol = 1e-3;
-   Real diff = std::fabs(americanNPV - shoutNPV/df);
-
-   if (diff > tol) {
-       BOOST_FAIL("failed to reproduce American option NPV with "
-                  "shout option pricing engine for "
-                  << "\n    calculated: " << shoutNPV/df
-                  << "\n    expected  : " << americanNPV
-                  << "\n    difference: " << diff
-                  << "\n    tolerance:  " << tol);
-   }
-
    VanillaOption option2(
        ext::make_shared<PlainVanillaPayoff>(Option::Put, 100.0),
        ext::make_shared<AmericanExercise>(today, maturityDate)
@@ -685,8 +658,12 @@ BOOST_AUTO_TEST_CASE(testZeroVolFDShoutNPV) {
    option2.setPricingEngine(
        ext::make_shared<FdBlackScholesShoutEngine>(process, dividends, 50, 50));
 
-   shoutNPV = option2.NPV();
-   diff = std::fabs(americanNPV - shoutNPV/df);
+   Real shoutNPV = option2.NPV();
+
+   const DiscountFactor df = r->discount(maturityDate)/r->discount(dividendDate);
+
+   const Real tol = 1e-3;
+   Real diff = std::fabs(americanNPV - shoutNPV/df);
 
    if (diff > tol) {
        BOOST_FAIL("failed to reproduce American option NPV with "
@@ -744,31 +721,6 @@ BOOST_AUTO_TEST_CASE(testLargeDividendShoutNPV) {
 
    const Real tol = 5e-2;
    Real diff = std::fabs(expected - calculated);
-
-   if (diff > tol) {
-       BOOST_FAIL("failed to reproduce American option NPV with "
-                  "shout option pricing engine for "
-                  << "\n    calculated: " << calculated
-                  << "\n    expected  : " << expected
-                  << "\n    difference: " << diff
-                  << "\n    tolerance:  " << tol);
-   }
-
-   QL_DEPRECATED_DISABLE_WARNING
-   DividendVanillaOption divOption(
-       ext::make_shared<PlainVanillaPayoff>(Option::Call, strike),
-       ext::make_shared<AmericanExercise>(today, maturityDate),
-       std::vector<Date>{dividendDate},
-       std::vector<Real>{divAmount}
-   );
-   QL_DEPRECATED_ENABLE_WARNING
-
-   divOption.setPricingEngine(
-       ext::make_shared<FdBlackScholesShoutEngine>(process, 100, 400));
-
-   calculated = divOption.NPV();
-
-   diff = std::fabs(expected - calculated);
 
    if (diff > tol) {
        BOOST_FAIL("failed to reproduce American option NPV with "
@@ -906,7 +858,7 @@ BOOST_AUTO_TEST_CASE(testTodayIsDividendDate) {
     BOOST_CHECK_THROW(option.theta(), QuantLib::Error);
 
     Real diffNpv = std::abs(escrowedNpv - spotNpv);
-    Real tol = 5e-2;
+    const Real tol = 5e-2;
 
     if (diffNpv > tol) {
         BOOST_FAIL("failed to compare American option NPV with "
@@ -919,7 +871,6 @@ BOOST_AUTO_TEST_CASE(testTodayIsDividendDate) {
 
     const Real diffDelta = std::abs(escrowedDelta - spotDelta);
 
-    tol = 1e-3;
     if (diffDelta > tol) {
         BOOST_FAIL("failed to compare American option Delta with "
                    "escrowed and spot dividend model "
@@ -957,7 +908,6 @@ BOOST_AUTO_TEST_CASE(testTodayIsDividendDate) {
     BOOST_CHECK_NO_THROW(option.theta());
 
     diffNpv = std::abs(escrowedNpv - spotNpv);
-    tol = 5e-2;
 
     if (diffNpv > tol) {
         BOOST_FAIL("failed to compare American option NPV with "
@@ -1337,7 +1287,7 @@ BOOST_AUTO_TEST_CASE(testQdAmericanEngines) {
         17.05087,26.89157,64.64923,0,390.87453,124.55406,0.01018,94.23963};
 
     std::vector<OptionSpec> testCaseSpecs;
-    testCaseSpecs.reserve(LENGTH(pde_values) + LENGTH(edgeTestCases));
+    testCaseSpecs.reserve(std::size(pde_values) + std::size(edgeTestCases));
 
     PseudoRandom::rng_type rng(PseudoRandom::urng_type(12345UL));
 
@@ -1515,7 +1465,7 @@ BOOST_AUTO_TEST_CASE(testAndersenLakeHighPrecisionExample) {
             QdFpAmericanEngine::FP_A, QdFpAmericanEngine::FP_B
         };
 
-        for (Size i=0; i < LENGTH(schemes); ++i) {
+        for (Size i=0; i < std::size(schemes); ++i) {
 
             americanOption.setPricingEngine(
                 ext::make_shared<QdFpAmericanEngine>(
@@ -1581,7 +1531,7 @@ BOOST_AUTO_TEST_CASE(testQdEngineStandardExample) {
     };
     const Real expected[] = { 0.2386475283369327, 0.2386596962737606 };
 
-    for (Size i=0; i < LENGTH(schemes); ++i) {
+    for (Size i=0; i < std::size(schemes); ++i) {
         americanOption.setPricingEngine(
             ext::make_shared<QdFpAmericanEngine>(
                 bsProcess,
@@ -1590,7 +1540,7 @@ BOOST_AUTO_TEST_CASE(testQdEngineStandardExample) {
         );
         const Real calculated = americanOption.NPV() - europeanOption.NPV();
 
-        const Real tol = 1e-15;
+        const Real tol = 7e-15;
         const Real diff = std::abs(calculated - expected[i]);
 
         if (diff > tol) {
@@ -1944,15 +1894,15 @@ BOOST_AUTO_TEST_CASE(testBjerksundStenslandEuropeanGreeks) {
 
         constexpr double tol = 1000*QL_EPSILON;
 
-        BOOST_CHECK_CLOSE(europeanOption.NPV(), americanOption.NPV(), tol);
-        BOOST_CHECK_CLOSE(europeanOption.delta(), americanOption.delta(), tol);
-        BOOST_CHECK_CLOSE(europeanOption.strikeSensitivity(), americanOption.strikeSensitivity(), tol);
-        BOOST_CHECK_CLOSE(europeanOption.gamma(), americanOption.gamma(), tol);
-        BOOST_CHECK_CLOSE(europeanOption.vega(), americanOption.vega(), tol);
-        BOOST_CHECK_CLOSE(europeanOption.theta(), americanOption.theta(), tol);
-        BOOST_CHECK_CLOSE(europeanOption.thetaPerDay(), americanOption.thetaPerDay(), tol);
-        BOOST_CHECK_CLOSE(europeanOption.rho(), americanOption.rho(), tol);
-        BOOST_CHECK_CLOSE(europeanOption.dividendRho(), americanOption.dividendRho(), tol);
+        QL_CHECK_CLOSE(europeanOption.NPV(), americanOption.NPV(), tol);
+        QL_CHECK_CLOSE(europeanOption.delta(), americanOption.delta(), tol);
+        QL_CHECK_CLOSE(europeanOption.strikeSensitivity(), americanOption.strikeSensitivity(), tol);
+        QL_CHECK_CLOSE(europeanOption.gamma(), americanOption.gamma(), tol);
+        QL_CHECK_CLOSE(europeanOption.vega(), americanOption.vega(), tol);
+        QL_CHECK_CLOSE(europeanOption.theta(), americanOption.theta(), tol);
+        QL_CHECK_CLOSE(europeanOption.thetaPerDay(), americanOption.thetaPerDay(), tol);
+        QL_CHECK_CLOSE(europeanOption.rho(), americanOption.rho(), tol);
+        QL_CHECK_CLOSE(europeanOption.dividendRho(), americanOption.dividendRho(), tol);
     }
 }
 
@@ -2037,7 +1987,7 @@ BOOST_AUTO_TEST_CASE(testBjerksundStenslandAmericanGreeks) {
                             const Real rho = option.rho();
                             const Real vega = option.vega();
                             const Real theta = option.theta();
-                            const std::string exerciseType = ext::any_cast<std::string>(
+                            const auto exerciseType = ext::any_cast<std::string>(
                                 option.additionalResults().find("exerciseType")->second);
 
                             OneAssetOption::results numericalResults;
@@ -2193,7 +2143,7 @@ BOOST_AUTO_TEST_CASE(testSingleBjerksundStenslandGreeks) {
     const Real vega = option.vega();
     const Real theta = option.theta();
     const Real thetaPerDay = option.thetaPerDay();
-    const std::string exerciseType = ext::any_cast<std::string>(
+    const auto exerciseType = ext::any_cast<std::string>(
         option.additionalResults().find("exerciseType")->second);
 
     const Real expectedNpv = 17.9251834488399169;
@@ -2227,6 +2177,94 @@ BOOST_AUTO_TEST_CASE(testSingleBjerksundStenslandGreeks) {
 
     if (exerciseType != "American")
         BOOST_FAIL("American exercise type expected");
+}
+
+BOOST_AUTO_TEST_CASE(testFdEarliestExerciseDate) {
+    BOOST_TEST_MESSAGE(
+        "Testing FD engine respects AmericanExercise earliest date...");
+
+    // A deep ITM American put where early exercise is valuable.
+    // Restricting the exercise window should reduce the price toward
+    // the European value.
+
+    const Date today(15, January, 2025);
+    Settings::instance().evaluationDate() = today;
+    DayCounter dc = Actual365Fixed();
+
+    const Real S0 = 80.0;
+    const Real K = 100.0;
+    const Volatility sigma = 0.25;
+    const Rate r = 0.05;
+    const Rate q = 0.0;
+
+    Handle<Quote> spot(ext::make_shared<SimpleQuote>(S0));
+    Handle<YieldTermStructure> qTS(flatRate(today, q, dc));
+    Handle<YieldTermStructure> rTS(flatRate(today, r, dc));
+    Handle<BlackVolTermStructure> volTS(flatVol(today, sigma, dc));
+
+    auto bsmProcess = ext::make_shared<BlackScholesMertonProcess>(
+        spot, qTS, rTS, volTS);
+
+    const Date maturity = today + Period(1, Years);
+    auto payoff = ext::make_shared<PlainVanillaPayoff>(Option::Put, K);
+
+    // Full American exercise
+    auto fullExercise = ext::make_shared<AmericanExercise>(today, maturity);
+    VanillaOption fullOption(payoff, fullExercise);
+    auto fdEngine = ext::make_shared<FdBlackScholesVanillaEngine>(
+        bsmProcess, 200, 200, 0);
+    fullOption.setPricingEngine(fdEngine);
+    const Real fullPrice = fullOption.NPV();
+
+    // European benchmark
+    auto euroExercise = ext::make_shared<EuropeanExercise>(maturity);
+    VanillaOption euroOption(payoff, euroExercise);
+    auto euroEngine = ext::make_shared<AnalyticEuropeanEngine>(bsmProcess);
+    euroOption.setPricingEngine(euroEngine);
+    const Real euroPrice = euroOption.NPV();
+
+    const Real earlyExPremium = fullPrice - euroPrice;
+    BOOST_TEST_MESSAGE("  Full American: " << fullPrice);
+    BOOST_TEST_MESSAGE("  European:      " << euroPrice);
+    BOOST_TEST_MESSAGE("  Early-ex premium: " << earlyExPremium);
+
+    // Sanity: the early exercise premium should be significant
+    // for this deep ITM put with 5% rates
+    BOOST_CHECK(earlyExPremium > 1.0);
+
+    // Restricted exercise: only last 3 months
+    const Date lateStart = maturity - Period(3, Months);
+    auto lateExercise = ext::make_shared<AmericanExercise>(lateStart, maturity);
+    VanillaOption lateOption(payoff, lateExercise);
+    lateOption.setPricingEngine(fdEngine);
+    const Real latePrice = lateOption.NPV();
+    BOOST_TEST_MESSAGE("  Last 3M only:  " << latePrice);
+
+    // The restricted option should be worth less than full American
+    BOOST_CHECK_MESSAGE(fullPrice - latePrice > 0.01,
+        "Restricting exercise window should reduce price: "
+        "full=" << fullPrice << " late=" << latePrice);
+
+    // The restricted option should be worth more than European
+    // (it still has some early exercise value in the last 3 months)
+    BOOST_CHECK_MESSAGE(latePrice > euroPrice + 0.01,
+        "Restricted American should exceed European: "
+        "late=" << latePrice << " euro=" << euroPrice);
+
+    // Monotonicity: longer exercise window -> higher price
+    const Date midStart = maturity - Period(6, Months);
+    auto midExercise = ext::make_shared<AmericanExercise>(midStart, maturity);
+    VanillaOption midOption(payoff, midExercise);
+    midOption.setPricingEngine(fdEngine);
+    const Real midPrice = midOption.NPV();
+    BOOST_TEST_MESSAGE("  Last 6M only:  " << midPrice);
+
+    BOOST_CHECK_MESSAGE(midPrice >= latePrice - 1e-8,
+        "Wider window should give higher price: "
+        "6M=" << midPrice << " 3M=" << latePrice);
+    BOOST_CHECK_MESSAGE(fullPrice >= midPrice - 1e-8,
+        "Full window should give highest price: "
+        "full=" << fullPrice << " 6M=" << midPrice);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

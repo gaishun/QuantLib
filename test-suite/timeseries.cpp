@@ -11,7 +11,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(testIntervalPrice) {
 }
 
 BOOST_AUTO_TEST_CASE(testIteratingDefaultContainer) {
-    BOOST_TEST_MESSAGE("Testing iterating of time series w/ default container which sorts by date...");
+    BOOST_TEST_MESSAGE("Testing iteration of time series with a default container which sorts by date...");
 
     const std::vector<Date> dates = {Date(25, March, 2005),
                                      Date(29, March, 2005),
@@ -107,27 +107,6 @@ BOOST_AUTO_TEST_CASE(testIteratingDefaultContainer) {
         const std::vector<Real> expected{prices[2], prices[0], prices[1]};
         BOOST_TEST(tsValues == expected);
     }
-
-    // == deprecated ==
-    QL_DEPRECATED_DISABLE_WARNING
-
-    // accessing dates
-    {
-        std::vector<Date> tsDates;
-        std::copy(ts.cbegin_time(), ts.cend_time(), std::back_inserter(tsDates));
-        const std::vector<Date> expected{dates[2], dates[0], dates[1]};
-        BOOST_TEST(tsDates == expected);
-    }
-
-    // accessing values
-    {
-        std::vector<Real> tsValues;
-        std::copy(ts.cbegin_values(), ts.cend_values(), std::back_inserter(tsValues));
-        const std::vector<Real> expected{prices[2], prices[0], prices[1]};
-        BOOST_TEST(tsValues == expected);
-    }
-
-    QL_DEPRECATED_ENABLE_WARNING
 }
 
 BOOST_AUTO_TEST_CASE(testCustomContainer) {
@@ -167,7 +146,7 @@ BOOST_AUTO_TEST_CASE(testInspectors) {
 }
 
 BOOST_AUTO_TEST_CASE(testUtilities) {
-    BOOST_TEST_MESSAGE("Testing utilities of time series...");
+    BOOST_TEST_MESSAGE("Testing time series utilities...");
 
     const std::vector<Date> dates = {Date(25, March, 2005),
                                      Date(29, March, 2005),

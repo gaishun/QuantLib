@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -64,10 +64,10 @@ void printBasket(
                  "==================" << std::endl;
     for (const auto& j : basket) {
         auto helper = ext::dynamic_pointer_cast<SwaptionHelper>(j);
-        Date endDate = helper->underlyingSwap()->fixedSchedule().dates().back();
-        Real nominal = helper->underlyingSwap()->nominal();
+        Date endDate = helper->underlying()->fixedSchedule().dates().back();
+        Real nominal = helper->underlying()->nominal();
         Real vol = helper->volatility()->value();
-        Real rate = helper->underlyingSwap()->fixedRate();
+        Real rate = helper->underlying()->fixedRate();
         Date expiry = helper->swaption()->exercise()->date(0);
         Swap::Type type = helper->swaption()->type();
         std::ostringstream expiryString, endDateString;
@@ -118,7 +118,7 @@ void printModelCalibration(
 
 // here the main part of the code starts
 
-int main(int argc, char *argv[]) {
+int main(int, char *[]) {
 
     try {
 
@@ -137,9 +137,8 @@ int main(int argc, char *argv[]) {
         Real forward6mLevel = 0.025;
         Real oisLevel = 0.02;
 
-        Handle<Quote> forward6mQuote(
-            ext::make_shared<SimpleQuote>(forward6mLevel));
-        Handle<Quote> oisQuote(ext::make_shared<SimpleQuote>(oisLevel));
+        auto forward6mQuote = makeQuoteHandle(forward6mLevel);
+        auto oisQuote = makeQuoteHandle(oisLevel);
 
         Handle<YieldTermStructure> yts6m(ext::make_shared<FlatForward>(
             0, TARGET(), forward6mQuote, Actual365Fixed()));
@@ -152,11 +151,11 @@ int main(int argc, char *argv[]) {
             << "\nWe assume a multicurve setup, for simplicity with flat yield "
                "\nterm structures. The discounting curve is an Eonia curve at"
                "\na level of " << oisLevel
-            << " and the forwarding curve is an Euribior 6m curve"
+            << " and the forwarding curve is an Euribor 6m curve"
             << "\nat a level of " << forward6mLevel << std::endl;
 
         Real volLevel = 0.20;
-        Handle<Quote> volQuote(ext::make_shared<SimpleQuote>(volLevel));
+        auto volQuote = makeQuoteHandle(volLevel);
         Handle<SwaptionVolatilityStructure> swaptionVol(
             ext::make_shared<ConstantSwaptionVolatility>(
                 0, TARGET(), ModifiedFollowing, volQuote, Actual365Fixed()));
@@ -483,8 +482,7 @@ int main(int argc, char *argv[]) {
                "\npricing this using the LinearTsrPricer for CMS coupon "
                "estimation" << std::endl;
 
-        Handle<Quote> reversionQuote(
-            ext::make_shared<SimpleQuote>(reversion));
+        auto reversionQuote = makeQuoteHandle(reversion);
 
         const Leg &leg0 = underlying4->leg(0);
         const Leg &leg1 = underlying4->leg(1);

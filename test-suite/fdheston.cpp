@@ -11,7 +11,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -22,7 +22,7 @@
 #include "toplevelfixture.hpp"
 #include "utilities.hpp"
 #include <ql/instruments/barrieroption.hpp>
-#include <ql/instruments/dividendvanillaoption.hpp>
+#include <ql/instruments/vanillaoption.hpp>
 #include <ql/math/functional.hpp>
 #include <ql/methods/finitedifferences/meshers/fdmhestonvariancemesher.hpp>
 #include <ql/models/equity/hestonmodel.hpp>
@@ -36,12 +36,11 @@
 #include <ql/quotes/simplequote.hpp>
 #include <ql/termstructures/volatility/equityfx/localconstantvol.hpp>
 #include <ql/termstructures/yield/flatforward.hpp>
-#include <ql/termstructures/yield/zerocurve.hpp>
 #include <ql/time/calendars/target.hpp>
 #include <ql/time/daycounters/actual360.hpp>
 #include <ql/time/daycounters/actual365fixed.hpp>
 #include <ql/time/daycounters/actualactual.hpp>
-#include <ql/tuple.hpp>
+#include <tuple>
 
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
@@ -473,7 +472,7 @@ BOOST_AUTO_TEST_CASE(testFdmHestonIkonenToivanen) {
     Real expected[] = { 2.00000, 1.10763, 0.520038, 0.213681, 0.082046 };
     const Real tol = 0.001;
     
-    for (Size i=0; i < LENGTH(strikes); ++i) {
+    for (Size i=0; i < std::size(strikes); ++i) {
         Handle<Quote> s0(ext::shared_ptr<Quote>(new SimpleQuote(strikes[i])));
         ext::shared_ptr<HestonProcess> hestonProcess(
             new HestonProcess(rTS, qTS, s0, 0.0625, 5, 0.16, 0.9, 0.1));
@@ -578,63 +577,35 @@ BOOST_AUTO_TEST_CASE(testFdmHestonEuropeanWithDividends) {
 
     const std::vector<Real> dividends(1, 5);
     const std::vector<Date> dividendDates(1, Date(28, September, 2004));
-
-    QL_DEPRECATED_DISABLE_WARNING
-    DividendVanillaOption option1(payoff, exercise, dividendDates, dividends);
-    QL_DEPRECATED_ENABLE_WARNING
-    ext::shared_ptr<PricingEngine> engine1(
-         new FdHestonVanillaEngine(ext::make_shared<HestonModel>(
-                             hestonProcess), 50, 100, 50));
-    option1.setPricingEngine(engine1);
     
     const Real tol = 0.01;
     const Real gammaTol = 0.001;
     const Real npvExpected   =  7.38216;
     const Real deltaExpected = -0.397902;
     const Real gammaExpected =  0.027747;
-        
-    if (std::fabs(option1.NPV() - npvExpected) > tol) {
-        BOOST_ERROR("Failed to reproduce expected npv"
-                    << "\n    calculated: " << option1.NPV()
-                    << "\n    expected:   " << npvExpected
-                    << "\n    tolerance:  " << tol); 
-    }
-    if (std::fabs(option1.delta() - deltaExpected) > tol) {
-        BOOST_ERROR("Failed to reproduce expected delta"
-                    << "\n    calculated: " << option1.delta()
-                    << "\n    expected:   " << deltaExpected
-                    << "\n    tolerance:  " << tol); 
-    }
-    if (std::fabs(option1.gamma() - gammaExpected) > gammaTol) {
-        BOOST_ERROR("Failed to reproduce expected gamma"
-                    << "\n    calculated: " << option1.gamma()
-                    << "\n    expected:   " << gammaExpected
-                    << "\n    tolerance:  " << tol); 
-    }
 
-
-    VanillaOption option2(payoff, exercise);
-    auto engine2 = ext::make_shared<FdHestonVanillaEngine>(
+    VanillaOption option(payoff, exercise);
+    auto engine = ext::make_shared<FdHestonVanillaEngine>(
         ext::make_shared<HestonModel>(hestonProcess),
         DividendVector(dividendDates, dividends),
         50, 100, 50);
-    option2.setPricingEngine(engine2);
+    option.setPricingEngine(engine);
         
-    if (std::fabs(option2.NPV() - npvExpected) > tol) {
+    if (std::fabs(option.NPV() - npvExpected) > tol) {
         BOOST_ERROR("Failed to reproduce expected npv"
-                    << "\n    calculated: " << option2.NPV()
+                    << "\n    calculated: " << option.NPV()
                     << "\n    expected:   " << npvExpected
                     << "\n    tolerance:  " << tol); 
     }
-    if (std::fabs(option2.delta() - deltaExpected) > tol) {
+    if (std::fabs(option.delta() - deltaExpected) > tol) {
         BOOST_ERROR("Failed to reproduce expected delta"
-                    << "\n    calculated: " << option2.delta()
+                    << "\n    calculated: " << option.delta()
                     << "\n    expected:   " << deltaExpected
                     << "\n    tolerance:  " << tol); 
     }
-    if (std::fabs(option2.gamma() - gammaExpected) > gammaTol) {
+    if (std::fabs(option.gamma() - gammaExpected) > gammaTol) {
         BOOST_ERROR("Failed to reproduce expected gamma"
-                    << "\n    calculated: " << option2.gamma()
+                    << "\n    calculated: " << option.gamma()
                     << "\n    expected:   " << gammaExpected
                     << "\n    tolerance:  " << tol); 
     }
@@ -934,20 +905,19 @@ BOOST_AUTO_TEST_CASE(testSpuriousOscillations) {
 
     option.setupArguments(hestonEngine->getArguments());
 
-    const ext::tuple<FdmSchemeDesc, std::string, bool> descs[] = {
-        ext::make_tuple(FdmSchemeDesc::CraigSneyd(), "Craig-Sneyd", true),
-        ext::make_tuple(FdmSchemeDesc::Hundsdorfer(), "Hundsdorfer", true),
-        ext::make_tuple(
-           FdmSchemeDesc::ModifiedHundsdorfer(), "Mod. Hundsdorfer", true),
-        ext::make_tuple(FdmSchemeDesc::Douglas(), "Douglas", true),
-        ext::make_tuple(FdmSchemeDesc::CrankNicolson(), "Crank-Nicolson", true),
-        ext::make_tuple(FdmSchemeDesc::ImplicitEuler(), "Implicit", false),
-        ext::make_tuple(FdmSchemeDesc::TrBDF2(), "TR-BDF2", false)
+    const std::tuple<FdmSchemeDesc, std::string, bool> descs[] = {
+        {FdmSchemeDesc::CraigSneyd(), "Craig-Sneyd", true},
+        {FdmSchemeDesc::Hundsdorfer(), "Hundsdorfer", true},
+        {FdmSchemeDesc::ModifiedHundsdorfer(), "Mod. Hundsdorfer", true},
+        {FdmSchemeDesc::Douglas(), "Douglas", true},
+        {FdmSchemeDesc::CrankNicolson(), "Crank-Nicolson", true},
+        {FdmSchemeDesc::ImplicitEuler(), "Implicit", false},
+        {FdmSchemeDesc::TrBDF2(), "TR-BDF2", false}
     };
 
-    for (const auto& desc : descs) {
+    for (const auto & [desc, name, spurious] : descs) {
         const ext::shared_ptr<FdmHestonSolver> solver = ext::make_shared<FdmHestonSolver>(
-            Handle<HestonProcess>(process), hestonEngine->getSolverDesc(1.0), ext::get<0>(desc));
+            Handle<HestonProcess>(process), hestonEngine->getSolverDesc(1.0), desc);
 
         std::vector<Real> gammas;
         for (Real x=99; x < 101.001; x+=0.1) {
@@ -964,11 +934,11 @@ BOOST_AUTO_TEST_CASE(testSpuriousOscillations) {
         const Real tol = 0.01;
         const bool hasSpuriousOscillations = maximum > tol;
 
-        if (hasSpuriousOscillations != ext::get<2>(desc)) {
+        if (hasSpuriousOscillations != spurious) {
             BOOST_ERROR("unable to reproduce spurious oscillation behaviour "
-                        << "\n   scheme name          : " << ext::get<1>(desc)
+                        << "\n   scheme name          : " << name
                         << "\n   oscillations observed: " << hasSpuriousOscillations
-                        << "\n   oscillations expected: " << ext::get<2>(desc));
+                        << "\n   oscillations expected: " << spurious);
         }
     }
 }

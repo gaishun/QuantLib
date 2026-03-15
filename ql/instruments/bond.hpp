@@ -15,7 +15,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -62,13 +62,14 @@ namespace QuantLib {
         class Price {
           public:
             enum Type { Dirty, Clean };
-            Price() : amount_(Null<Real>()) {}
+            Price() : amount_(Null<Real>()), type_(Bond::Price::Clean) {}
             Price(Real amount, Type type) : amount_(amount), type_(type) {}
             Real amount() const {
                 QL_REQUIRE(amount_ != Null<Real>(), "no amount given");
                 return amount_;
             }
             Type type() const { return type_; }
+            bool isValid() const { return amount_ != Null<Real>(); }
           private:
             Real amount_;
             Type type_;
@@ -196,15 +197,14 @@ namespace QuantLib {
 
         //! yield given a price and settlement date
         /*! The default bond settlement is used if no date is given. */
-        Rate yield(Real price,
+        Rate yield(Bond::Price price,
                    const DayCounter& dc,
                    Compounding comp,
                    Frequency freq,
                    Date settlementDate = Date(),
                    Real accuracy = 1.0e-8,
                    Size maxEvaluations = 100,
-                   Real guess = 0.05,
-                   Bond::Price::Type priceType = Bond::Price::Clean) const;
+                   Real guess = 0.05) const;
 
         //! accrued amount at a given date
         /*! The default bond settlement is used if no date is given. */

@@ -11,7 +11,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -30,7 +30,7 @@ namespace QuantLib {
     FloatingRateBond::FloatingRateBond(
                            Natural settlementDays,
                            Real faceAmount,
-                           const Schedule& schedule,
+                           Schedule schedule,
                            const ext::shared_ptr<IborIndex>& iborIndex,
                            const DayCounter& paymentDayCounter,
                            BusinessDayConvention paymentConvention,
@@ -45,12 +45,13 @@ namespace QuantLib {
                            const Period& exCouponPeriod,
                            const Calendar& exCouponCalendar,
                            const BusinessDayConvention exCouponConvention,
-                           bool exCouponEndOfMonth)
+                           bool exCouponEndOfMonth,
+                           BusinessDayConvention fixingConvention)
     : Bond(settlementDays, schedule.calendar(), issueDate) {
 
         maturityDate_ = schedule.endDate();
 
-        cashflows_ = IborLeg(schedule, iborIndex)
+        cashflows_ = IborLeg(std::move(schedule), iborIndex)
             .withNotionals(faceAmount)
             .withPaymentDayCounter(paymentDayCounter)
             .withPaymentAdjustment(paymentConvention)
@@ -60,7 +61,8 @@ namespace QuantLib {
             .withCaps(caps)
             .withFloors(floors)
             .inArrears(inArrears)
-            .withExCouponPeriod(exCouponPeriod, exCouponCalendar, exCouponConvention, exCouponEndOfMonth);
+            .withExCouponPeriod(exCouponPeriod, exCouponCalendar, exCouponConvention, exCouponEndOfMonth)
+            .withFixingConvention(fixingConvention);
 
         addRedemptionsToCashflows(std::vector<Real>(1, redemption));
 

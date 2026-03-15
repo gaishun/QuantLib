@@ -11,7 +11,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -50,28 +50,31 @@ namespace QuantLib {
             const Currency& ccy,
             const Handle<ZeroInflationTermStructure>& ts = {})
         : ZeroInflationIndex("CPI", GenericRegion(), revised, frequency, lag, ccy, ts) {}
-
-        /*! \deprecated Use the constructor without the "interpolated" parameter.
-                        Deprecated in version 1.29.
-        */
-        QL_DEPRECATED
-        GenericCPI(Frequency frequency,
-                   bool revised,
-                   bool interpolated,
-                   const Period &lag,
-                   const Currency &ccy,
-                   const Handle<ZeroInflationTermStructure>& ts = {})
-        : GenericCPI(frequency, revised, lag, ccy, ts) {
-            QL_DEPRECATED_DISABLE_WARNING
-            interpolated_ = interpolated;
-            QL_DEPRECATED_ENABLE_WARNING
-        }
     };
 
 
     //! Quoted year-on-year Generic CPI (i.e. not a ratio)
     class YYGenericCPI : public YoYInflationIndex {
       public:
+        YYGenericCPI(Frequency frequency,
+                     bool revised,
+                     const Period &lag,
+                     const Currency &ccy,
+                     const Handle<YoYInflationTermStructure>& ts = {})
+        : YoYInflationIndex("YY_CPI",
+                            GenericRegion(),
+                            revised,
+                            frequency,
+                            lag,
+                            ccy,
+                            ts) {}
+
+        QL_DEPRECATED_DISABLE_WARNING
+
+        /*! \deprecated Use the overload without the interpolated parameter.
+                        Deprecated in version 1.38.
+        */
+        [[deprecated("Use the overload without the interpolated parameter")]]
         YYGenericCPI(Frequency frequency,
                      bool revised,
                      bool interpolated,
@@ -86,34 +89,10 @@ namespace QuantLib {
                             lag,
                             ccy,
                             ts) {}
+
+        QL_DEPRECATED_ENABLE_WARNING
     };
 
-    QL_DEPRECATED_DISABLE_WARNING
-
-    //! Year-on-year GenericCPI (i.e. a ratio)
-    /*! \deprecated Pass a zero-inflation index to YoYInflationIndex instead.
-                    Deprecated in version 1.31.
-    */
-    class [[deprecated("Pass a zero-inflation index to YoYInflationIndex instead")]] YYGenericCPIr : public YoYInflationIndex {
-      public:
-        YYGenericCPIr(Frequency frequency,
-                      bool revised,
-                      bool interpolated,
-                      const Period &lag,
-                      const Currency &ccy,
-                      const Handle<YoYInflationTermStructure>& ts = {})
-        : YoYInflationIndex("YYR_CPI",
-                            GenericRegion(),
-                            revised,
-                            interpolated,
-                            true,
-                            frequency,
-                            lag,
-                            ccy,
-                            ts) {}
-    };
-
-    QL_DEPRECATED_ENABLE_WARNING
 }
 
 #endif

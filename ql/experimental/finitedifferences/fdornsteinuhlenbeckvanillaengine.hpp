@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -25,7 +25,7 @@
 #define quantlib_fd_ornstein_uhlenbeck_vanilla_engine_hpp
 
 #include <ql/pricingengine.hpp>
-#include <ql/instruments/dividendvanillaoption.hpp>
+#include <ql/instruments/vanillaoption.hpp>
 #include <ql/methods/finitedifferences/solvers/fdmbackwardsolver.hpp>
 
 namespace QuantLib {
@@ -33,10 +33,7 @@ namespace QuantLib {
     class YieldTermStructure;
     class OrnsteinUhlenbeckProcess;
 
-    QL_DEPRECATED_DISABLE_WARNING
-
-    class FdOrnsteinUhlenbeckVanillaEngine : public DividendVanillaOption::engine {
-        QL_DEPRECATED_ENABLE_WARNING
+    class FdOrnsteinUhlenbeckVanillaEngine : public VanillaOption::engine {
       public:
         FdOrnsteinUhlenbeckVanillaEngine(
             ext::shared_ptr<OrnsteinUhlenbeckProcess>,
@@ -63,7 +60,6 @@ namespace QuantLib {
         const ext::shared_ptr<OrnsteinUhlenbeckProcess> process_;
         const ext::shared_ptr<YieldTermStructure> rTS_;
         DividendSchedule dividends_;
-        bool explicitDividends_;
         const Size tGrid_, xGrid_, dampingSteps_;
         const Real epsilon_;
         const FdmSchemeDesc schemeDesc_;

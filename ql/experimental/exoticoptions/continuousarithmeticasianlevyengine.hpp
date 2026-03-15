@@ -10,40 +10,19 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-/*! \file continuousarithmeticasianlevyengine.hpp
-    \brief Levy engine for continuous arithmetic Asian options
-*/
+#ifndef quantlib_experimental_continuous_arithmetic_asian_levy_engine_hpp
+#define quantlib_experimental_continuous_arithmetic_asian_levy_engine_hpp
 
-#ifndef quantlib_continuous_arithmetic_asian_levy_engine_hpp
-#define quantlib_continuous_arithmetic_asian_levy_engine_hpp
+// Deprecated in version 1.38
+#pragma message("Warning: this file will disappear in a future release; include <ql/pricingengines/asian/continuousarithmeticasianlevyengine.hpp> instead.")
 
-#include <ql/instruments/asianoption.hpp>
-#include <ql/processes/blackscholesprocess.hpp>
-
-namespace QuantLib {
-
-    class ContinuousArithmeticAsianLevyEngine
-        : public ContinuousAveragingAsianOption::engine {
-      public:
-        ContinuousArithmeticAsianLevyEngine(ext::shared_ptr<GeneralizedBlackScholesProcess> process,
-                                            Handle<Quote> currentAverage,
-                                            Date startDate);
-        void calculate() const override;
-
-      private:
-        ext::shared_ptr<GeneralizedBlackScholesProcess> process_;
-        Handle<Quote> currentAverage_ ;
-        Date startDate_;
-    };
-
-}
-
+#include <ql/pricingengines/asian/continuousarithmeticasianlevyengine.hpp>
 
 #endif

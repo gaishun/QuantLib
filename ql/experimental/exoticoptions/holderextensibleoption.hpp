@@ -10,60 +10,19 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-/*! \file holderextensibleoption.hpp
-    \brief Holder-extensible option
-*/
+#ifndef quantlib_experimental_holder_extensible_option_hpp
+#define quantlib_experimental_holder_extensible_option_hpp
 
-#ifndef quantlib_holder_extensible_option_hpp
-#define quantlib_holder_extensible_option_hpp
+// Deprecated in version 1.38
+#pragma message("Warning: this file will disappear in a future release; include <ql/instruments/holderextensibleoption.hpp> instead.")
 
-#include <ql/instruments/payoffs.hpp>
-#include <ql/instruments/oneassetoption.hpp>
-
-namespace QuantLib {
-
-    class GeneralizedBlackScholesProcess;
-
-    class HolderExtensibleOption : public OneAssetOption {
-      public:
-        class arguments;
-        class engine;
-        HolderExtensibleOption(
-                       Option::Type type,
-                       Real premium,
-                       Date secondExpiryDate,
-                       Real secondStrike,
-                       const ext::shared_ptr<StrikedTypePayoff>& payoff,
-                       const ext::shared_ptr<Exercise>& exercise);
-        void setupArguments(PricingEngine::arguments*) const override;
-
-      protected:
-        Real premium_;
-        Date secondExpiryDate_;
-        Real secondStrike_;
-    };
-
-    class HolderExtensibleOption::arguments : public OneAssetOption::arguments {
-      public:
-        Real premium;
-        Date secondExpiryDate;
-        Real secondStrike;
-
-        void validate() const override;
-    };
-
-    class HolderExtensibleOption::engine
-        : public GenericEngine<HolderExtensibleOption::arguments,
-                               HolderExtensibleOption::results> {};
-
-}
-
+#include <ql/instruments/holderextensibleoption.hpp>
 
 #endif

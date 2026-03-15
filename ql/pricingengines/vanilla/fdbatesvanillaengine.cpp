@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -28,17 +28,14 @@
 
 namespace QuantLib {
 
-    QL_DEPRECATED_DISABLE_WARNING
-
     FdBatesVanillaEngine::FdBatesVanillaEngine(
             const ext::shared_ptr<BatesModel>& model,
             Size tGrid, Size xGrid, 
             Size vGrid, Size dampingSteps,
             const FdmSchemeDesc& schemeDesc)
     : GenericModelEngine<BatesModel,
-                         DividendVanillaOption::arguments,
-                         DividendVanillaOption::results>(model),
-      explicitDividends_(false),
+                         VanillaOption::arguments,
+                         VanillaOption::results>(model),
       tGrid_(tGrid), xGrid_(xGrid),
       vGrid_(vGrid), dampingSteps_(dampingSteps),
       schemeDesc_(schemeDesc) {}
@@ -50,31 +47,22 @@ namespace QuantLib {
             Size vGrid, Size dampingSteps,
             const FdmSchemeDesc& schemeDesc)
     : GenericModelEngine<BatesModel,
-                         DividendVanillaOption::arguments,
-                         DividendVanillaOption::results>(model),
-      dividends_(std::move(dividends)), explicitDividends_(true),
+                         VanillaOption::arguments,
+                         VanillaOption::results>(model),
+      dividends_(std::move(dividends)),
       tGrid_(tGrid), xGrid_(xGrid),
       vGrid_(vGrid), dampingSteps_(dampingSteps),
       schemeDesc_(schemeDesc) {}
 
-    QL_DEPRECATED_ENABLE_WARNING
-
     void FdBatesVanillaEngine::calculate() const {
 
-        // dividends will eventually be moved out of arguments, but for now we need the switch
-        QL_DEPRECATED_DISABLE_WARNING
-        const DividendSchedule& passedDividends = explicitDividends_ ? dividends_ : arguments_.cashFlow;
-        QL_DEPRECATED_ENABLE_WARNING
-
         FdHestonVanillaEngine helperEngine(model_.currentLink(),
-                                           passedDividends,
+                                           dividends_,
                                            tGrid_, xGrid_, vGrid_,
                                            dampingSteps_, schemeDesc_);
 
-        QL_DEPRECATED_DISABLE_WARNING
-        *dynamic_cast<DividendVanillaOption::arguments*>(
+        *dynamic_cast<VanillaOption::arguments*>(
                                helperEngine.getArguments()) = arguments_;
-        QL_DEPRECATED_ENABLE_WARNING
 
         FdmSolverDesc solverDesc = helperEngine.getSolverDesc(2.0);
 

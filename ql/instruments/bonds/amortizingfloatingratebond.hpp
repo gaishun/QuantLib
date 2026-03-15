@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -36,7 +36,7 @@ namespace QuantLib {
       public:
         AmortizingFloatingRateBond(Natural settlementDays,
                                    const std::vector<Real>& notional,
-                                   const Schedule& schedule,
+                                   Schedule schedule,
                                    const ext::shared_ptr<IborIndex>& index,
                                    const DayCounter& accrualDayCounter,
                                    BusinessDayConvention paymentConvention = Following,
@@ -54,7 +54,7 @@ namespace QuantLib {
                                    const std::vector<Real>& redemptions = { 100.0 },
                                    Integer paymentLag = 0);
     };
-  
+
 }
 
 #endif

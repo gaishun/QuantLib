@@ -10,37 +10,19 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-/*! \file analyticwriterextensibleoptionengine.hpp
-    \brief Analytic engine for writer-extensible options
-*/
+#ifndef quantlib_experimental_analytic_writer_extensible_option_engine_hpp
+#define quantlib_experimental_analytic_writer_extensible_option_engine_hpp
 
-#ifndef quantlib_analytic_writer_extensible_option_engine_hpp
-#define quantlib_analytic_writer_extensible_option_engine_hpp
+// Deprecated in version 1.38
+#pragma message("Warning: this file will disappear in a future release; include <ql/pricingengines/exotic/analyticwriterextensibleoptionengine.hpp> instead.")
 
-#include <ql/experimental/exoticoptions/writerextensibleoption.hpp>
-#include <ql/processes/blackscholesprocess.hpp>
-
-namespace QuantLib {
-
-    //! Analytic engine for writer-extensible options
-    class AnalyticWriterExtensibleOptionEngine
-        : public WriterExtensibleOption::engine {
-      public:
-        explicit AnalyticWriterExtensibleOptionEngine(
-            ext::shared_ptr<GeneralizedBlackScholesProcess> process);
-        void calculate() const override;
-
-      private:
-        ext::shared_ptr<GeneralizedBlackScholesProcess> process_;
-    };
-
-}
+#include <ql/pricingengines/exotic/analyticwriterextensibleoptionengine.hpp>
 
 #endif

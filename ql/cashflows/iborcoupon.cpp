@@ -14,7 +14,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -44,13 +44,15 @@ namespace QuantLib {
                            const Date& refPeriodEnd,
                            const DayCounter& dayCounter,
                            bool isInArrears,
-                           const Date& exCouponDate)
+                           const Date& exCouponDate,
+                           BusinessDayConvention fixingConvention)
     : FloatingRateCoupon(paymentDate, nominal, startDate, endDate,
                          fixingDays, iborIndex, gearing, spread,
                          refPeriodStart, refPeriodEnd,
-                         dayCounter, isInArrears, exCouponDate),
+                         dayCounter, isInArrears, exCouponDate,
+                         fixingConvention),
       iborIndex_(iborIndex) {
-        fixingDate_ = fixingDate();
+        fixingDate_ = FloatingRateCoupon::fixingDate();
     }
 
     void IborCoupon::initializeCachedData() const {
@@ -84,8 +86,28 @@ namespace QuantLib {
         return spanningTimeIndexMaturity_;
     }
 
-    Rate IborCoupon::indexFixing() const {
+    Date IborCoupon::fixingDate() const {
+        return fixingDate_;
+    }
 
+    bool IborCoupon::hasFixed() const {
+        Date today = QuantLib::Settings::instance().evaluationDate();
+
+        if (fixingDate_ > today) {
+            return false;
+        } else if (fixingDate_ < today) {
+            return true;
+        } else {
+            // fixingDate_ == today
+            if (QuantLib::Settings::instance().enforcesTodaysHistoricFixings()) {
+                return true;
+            } else {
+                return index_->hasHistoricalFixing(fixingDate_);
+            }
+        }
+    }
+
+    Rate IborCoupon::indexFixing() const {
         initializeCachedData();
 
         /* instead of just returning index_->fixing(fixingValueDate_)
@@ -94,34 +116,15 @@ namespace QuantLib {
            1) allows to save date/time recalculations, and
            2) takes into account par coupon needs
         */
-        Date today = QuantLib::Settings::instance().evaluationDate();
 
-        if (fixingDate_>today)
-            return iborIndex_->forecastFixing(fixingValueDate_,
-                                              fixingEndDate_,
-                                              spanningTime_);
-
-        if (fixingDate_<today ||
-            QuantLib::Settings::instance().enforcesTodaysHistoricFixings()) {
-            // do not catch exceptions
+        if (hasFixed()) {
             Rate result = index_->pastFixing(fixingDate_);
             QL_REQUIRE(result != Null<Real>(),
                        "Missing " << index_->name() << " fixing for " << fixingDate_);
             return result;
+        } else {
+            return iborIndex_->forecastFixing(fixingValueDate_, fixingEndDate_, spanningTime_);
         }
-
-        try {
-            Rate result = index_->pastFixing(fixingDate_);
-            if (result!=Null<Real>())
-                return result;
-            else
-                ;   // fall through and forecast
-        } catch (Error&) {
-                ;   // fall through and forecast
-        }
-        return iborIndex_->forecastFixing(fixingValueDate_,
-                                          fixingEndDate_,
-                                          spanningTime_);
     }
 
     void IborCoupon::setPricer(const ext::shared_ptr<FloatingRateCouponPricer>& pricer) {
@@ -256,6 +259,11 @@ namespace QuantLib {
         return *this;
 	}
 
+    IborLeg& IborLeg::withFixingConvention(BusinessDayConvention convention) {
+        fixingConvention_ = convention;
+        return *this;
+    }
+
     IborLeg& IborLeg::withIndexedCoupons(ext::optional<bool> b) {
         useIndexedCoupons_ = b;
         return *this;
@@ -272,7 +280,8 @@ namespace QuantLib {
                          schedule_, notionals_, index_, paymentDayCounter_,
                          paymentAdjustment_, fixingDays_, gearings_, spreads_,
                          caps_, floors_, inArrears_, zeroPayments_, paymentLag_, paymentCalendar_, 
-			             exCouponPeriod_, exCouponCalendar_, exCouponAdjustment_, exCouponEndOfMonth_);
+			             exCouponPeriod_, exCouponCalendar_, exCouponAdjustment_, exCouponEndOfMonth_,
+			             fixingConvention_);
 
         if (caps_.empty() && floors_.empty() && !inArrears_) {
             ext::shared_ptr<IborCouponPricer> pricer = ext::make_shared<BlackIborCouponPricer>(

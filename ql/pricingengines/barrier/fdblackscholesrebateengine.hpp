@@ -12,7 +12,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -28,16 +28,13 @@
 
 #include <ql/processes/blackscholesprocess.hpp>
 #include <ql/methods/finitedifferences/solvers/fdmbackwardsolver.hpp>
-#include <ql/instruments/dividendbarrieroption.hpp>
+#include <ql/instruments/barrieroption.hpp>
 
 namespace QuantLib {
 
-    QL_DEPRECATED_DISABLE_WARNING
-
     //! Finite-differences Black/Scholes barrier-option rebate helper engine
     /*! \ingroup barrierengines */
-    class FdBlackScholesRebateEngine : public DividendBarrierOption::engine {
-        QL_DEPRECATED_ENABLE_WARNING
+    class FdBlackScholesRebateEngine : public BarrierOption::engine {
       public:
         explicit FdBlackScholesRebateEngine(
             ext::shared_ptr<GeneralizedBlackScholesProcess> process,
@@ -63,7 +60,6 @@ namespace QuantLib {
       private:
         ext::shared_ptr<GeneralizedBlackScholesProcess> process_;
         DividendSchedule dividends_;
-        bool explicitDividends_;
         Size tGrid_, xGrid_, dampingSteps_;
         FdmSchemeDesc schemeDesc_;
         bool localVol_;

@@ -11,7 +11,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -300,8 +300,7 @@ void ReplicationError::compute(Size nTimeSteps, Size nSamples)
     Calendar calendar = TARGET();
     Date today = Date::todaysDate();
     DayCounter dayCount = Actual365Fixed();
-    Handle<Quote> stateVariable(
-                          ext::make_shared<SimpleQuote>(s0_));
+    auto stateVariable = makeQuoteHandle(s0_);
     Handle<YieldTermStructure> riskFreeRate(
                           ext::make_shared<FlatForward>(today, r_, dayCount));
     Handle<YieldTermStructure> dividendYield(
@@ -331,7 +330,7 @@ void ReplicationError::compute(Size nTimeSteps, Size nSamples)
                               payoff_.optionType(), payoff_.strike(),
                               r_, maturity_, sigma_);
 
-    // a statistics accumulator for the path-dependant Profit&Loss values
+    // a statistics accumulator for the path-dependent Profit&Loss values
     Statistics statisticsAccumulator;
 
     // The Monte Carlo model generates paths using myPathGenerator

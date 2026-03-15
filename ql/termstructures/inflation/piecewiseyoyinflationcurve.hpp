@@ -12,7 +12,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -47,35 +47,35 @@ namespace QuantLib {
       public:
         typedef Traits traits_type;
         typedef Interpolator interpolator_type;
+
         //! \name Constructors
         //@{
+
         PiecewiseYoYInflationCurve(
             const Date& referenceDate,
-            const Calendar& calendar,
-            const DayCounter& dayCounter,
-            const Period& lag,
-            Frequency frequency,
-            bool indexIsInterpolated,
+            Date baseDate,
             Rate baseYoYRate,
+            Frequency frequency,
+            const DayCounter& dayCounter,
             std::vector<ext::shared_ptr<typename Traits::helper> > instruments,
+            const ext::shared_ptr<Seasonality>& seasonality = {},
             Real accuracy = 1.0e-12,
             const Interpolator& i = Interpolator())
         : base_curve(referenceDate,
-                     calendar,
-                     dayCounter,
+                     baseDate,
                      baseYoYRate,
-                     lag,
                      frequency,
-                     indexIsInterpolated,
+                     dayCounter,
+                     seasonality,
                      i),
           instruments_(std::move(instruments)), accuracy_(accuracy) {
             bootstrap_.setup(this);
         }
+
         //@}
 
         //! \name Inflation interface
         //@{
-        Date baseDate() const override;
         Date maxDate() const override;
         //@
         //! \name Inspectors
@@ -92,23 +92,17 @@ namespace QuantLib {
       private:
         // methods
         void performCalculations() const override;
+        Rate yoyRateImpl(Time t) const override;
         // data members
         std::vector<ext::shared_ptr<typename Traits::helper> > instruments_;
         Real accuracy_;
 
         friend class Bootstrap<this_curve>;
-        friend class BootstrapError<this_curve>;
         Bootstrap<this_curve> bootstrap_;
     };
 
 
     // inline and template definitions
-
-    template <class I, template <class> class B, class T>
-    inline Date PiecewiseYoYInflationCurve<I,B,T>::baseDate() const {
-        this->calculate();
-        return base_curve::baseDate();
-    }
 
     template <class I, template <class> class B, class T>
     inline Date PiecewiseYoYInflationCurve<I,B,T>::maxDate() const {
@@ -144,6 +138,12 @@ namespace QuantLib {
     template <class I, template <class> class B, class T>
     void PiecewiseYoYInflationCurve<I,B,T>::performCalculations() const {
         bootstrap_.calculate();
+    }
+
+    template <class I, template <class> class B, class T>
+    Rate PiecewiseYoYInflationCurve<I,B,T>::yoyRateImpl(Time t) const {
+        calculate();
+        return base_curve::yoyRateImpl(t);
     }
 
     template <class I, template <class> class B, class T>

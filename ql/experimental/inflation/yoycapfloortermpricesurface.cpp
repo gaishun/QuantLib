@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -26,7 +26,7 @@ namespace QuantLib {
         Natural fixingDays,
         const Period& lag,
         const ext::shared_ptr<YoYInflationIndex>& yii,
-        Rate baseRate,
+        CPI::InterpolationType interpolation,
         Handle<YieldTermStructure> nominal,
         const DayCounter& dc,
         const Calendar& cal,
@@ -36,10 +36,10 @@ namespace QuantLib {
         const std::vector<Period>& cfMaturities,
         const Matrix& cPrice,
         const Matrix& fPrice)
-    : InflationTermStructure(0, cal, baseRate, lag, yii->frequency(), dc),
-      fixingDays_(fixingDays), bdc_(bdc), yoyIndex_(yii), nominalTS_(std::move(nominal)),
+    : TermStructure(0, cal, dc),
+      fixingDays_(fixingDays), bdc_(bdc), yoyIndex_(yii), observationLag_(lag), nominalTS_(std::move(nominal)),
       cStrikes_(cStrikes), fStrikes_(fStrikes), cfMaturities_(cfMaturities), cPrice_(cPrice),
-      fPrice_(fPrice), indexIsInterpolated_(yii->interpolated()) {
+      fPrice_(fPrice), indexIsInterpolated_(detail::CPI::isInterpolated(interpolation, yoyIndex_)) {
 
         // data consistency checking, enough data?
         QL_REQUIRE(fStrikes_.size() > 1, "not enough floor strikes");
@@ -127,8 +127,6 @@ namespace QuantLib {
                     bool extrapolate) const {
         return atmYoYRate(yoyOptionDateFromTenor(d), obsLag, extrapolate);
     }
-
-
 
 }
 

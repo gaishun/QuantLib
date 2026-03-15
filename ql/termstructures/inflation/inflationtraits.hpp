@@ -12,7 +12,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -44,11 +44,12 @@ namespace QuantLib {
 
         // start of curve data
         static Date initialDate(const ZeroInflationTermStructure* t) {
-            return inflationPeriod(t->referenceDate() - t->observationLag(), t->frequency()).first;
+            return t->baseDate();
         }
         // value at reference date
-        static Rate initialValue(const ZeroInflationTermStructure* t) {
-            return t->baseRate();
+        static Rate initialValue(const ZeroInflationTermStructure*) {
+            // this will be overwritten during bootstrap
+            return detail::avgInflation;
         }
 
         // guesses
@@ -61,10 +62,6 @@ namespace QuantLib {
             if (validData) // previous iteration value
                 return c->data()[i];
 
-            if (i==1) // first pillar
-                return detail::avgInflation;
-
-            // could/should extrapolate
             return detail::avgInflation;
         }
 
@@ -101,13 +98,23 @@ namespace QuantLib {
                                 Rate level,
                                 Size i) {
             data[i] = level;
+            if (i==1)
+                data[0] = level; // the first point is updated as well
+        }
+        // transformation to add constraints to an unconstrained optimization
+        template <class C>
+        static Real transformDirect(Real x, Size, const C*) {
+            return x;
+        }
+        template <class C>
+        static Real transformInverse(Real x, Size, const C*) {
+            return x;
         }
         // upper bound for convergence loop
-        // calibration is trivial, should be immediate
-        static Size maxIterations() { return 5; }
+        static Size maxIterations() { return 40; }
     };
 
-    //! Bootstrap traits to use for PiecewiseZeroInflationCurve
+    //! Bootstrap traits to use for PiecewiseYoYInflationCurve
     class YoYInflationTraits {
       public:
         // helper class
@@ -115,13 +122,9 @@ namespace QuantLib {
 
         // start of curve data
         static Date initialDate(const YoYInflationTermStructure* t) {
-            if (t->indexIsInterpolated()) {
-                return t->referenceDate() - t->observationLag();
-            } else {
-                return inflationPeriod(t->referenceDate() - t->observationLag(),
-                                       t->frequency()).first;
-            }
+            return t->baseDate();
         }
+
         // value at reference date
         static Rate initialValue(const YoYInflationTermStructure* t) {
             return t->baseRate();
@@ -137,10 +140,6 @@ namespace QuantLib {
             if (validData) // previous iteration value
                 return c->data()[i];
 
-            if (i==1) // first pillar
-                return detail::avgInflation;
-        
-            // could/should extrapolate
             return detail::avgInflation;
         }
 
@@ -177,6 +176,15 @@ namespace QuantLib {
                                 Rate level,
                                 Size i) {
             data[i] = level;
+        }
+        // transformation to add constraints to an unconstrained optimization
+        template <class C>
+        static Real transformDirect(Real x, Size, const C*) {
+            return x;
+        }
+        template <class C>
+        static Real transformInverse(Real x, Size, const C*) {
+            return x;
         }
         // upper bound for convergence loop
         static Size maxIterations() { return 40; }

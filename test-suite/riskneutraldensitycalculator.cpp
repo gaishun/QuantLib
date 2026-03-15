@@ -11,7 +11,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -756,7 +756,7 @@ BOOST_AUTO_TEST_CASE(testCEVCDF) {
     const Real betas[] = { 0.45, 1.25 };
 
     const Real tol = 1e-6;
-    for (Size i = 1; i < LENGTH(betas); ++i) {
+    for (Size i = 1; i < std::size(betas); ++i) {
         const Real beta = betas[i];
         const ext::shared_ptr<CEVRNDCalculator> calculator =
             ext::make_shared<CEVRNDCalculator>(f0, alpha, beta);

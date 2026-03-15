@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -107,6 +107,8 @@ namespace QuantLib {
                                << volsteptimes_[j - 1] << "@" << (j - 1) << ", "
                                << volsteptimes_[j] << "@" << j << ")");
         }
+        if (stateProcess_)
+            ext::static_pointer_cast<MfStateProcess>(stateProcess_)->setTimes(volsteptimesArray_);
     }
 
     void MarkovFunctional::updateTimes2() const {
@@ -643,7 +645,7 @@ namespace QuantLib {
                 SmileSectionUtils ssutils(*sec, modelSettings_.smileMoneynessCheckpoints_,
                                           calibrationPoint.second.atm_);
                 Real shift = sec->shift();
-                std::vector<Real> money = ssutils.moneyGrid();
+                const std::vector<Real>& money = ssutils.moneyGrid();
                 std::vector<Real> strikes, marketCall, marketPut, modelCall,
                     modelPut, marketVega, marketRawCall, marketRawPut;
                 for (Size j = 0; j < money.size(); j++) {
@@ -670,17 +672,17 @@ namespace QuantLib {
                     modelCall.push_back(
                         calibrationPoint.second.isCaplet_ ?
                             capletPriceInternal(Option::Call, calibrationPoint.first, strikes[j],
-                                                Null<Date>(), 0.0, true) :
+                                                Date(), 0.0, true) :
                             swaptionPriceInternal(Option::Call, calibrationPoint.first,
                                                   calibrationPoint.second.tenor_, strikes[j],
-                                                  Null<Date>(), 0.0, true));
+                                                  Date(), 0.0, true));
                     modelPut.push_back(
                         calibrationPoint.second.isCaplet_ ?
                             capletPriceInternal(Option::Put, calibrationPoint.first, strikes[j],
-                                                Null<Date>(), 0.0, true) :
+                                                Date(), 0.0, true) :
                             swaptionPriceInternal(Option::Put, calibrationPoint.first,
                                                   calibrationPoint.second.tenor_, strikes[j],
-                                                  Null<Date>(), 0.0, true));
+                                                  Date(), 0.0, true));
                     marketVega.push_back(sec->vega(strikes[j], calibrationPoint.second.annuity_));
                 }
                 modelOutputs_.smileStrikes_.push_back(strikes);
@@ -1029,7 +1031,7 @@ namespace QuantLib {
 
         Time fixingTime = termStructure()->timeFromReference(expiry);
         Time referenceTime =
-            referenceDate == Null<Date>()
+            referenceDate == Date()
                 ? 0.0
                 : termStructure()->timeFromReference(referenceDate);
 
@@ -1099,7 +1101,7 @@ namespace QuantLib {
 
         Time fixingTime = termStructure()->timeFromReference(expiry);
         Time referenceTime =
-            referenceDate == Null<Date>()
+            referenceDate == Date()
                 ? 0.0
                 : termStructure()->timeFromReference(referenceDate);
 

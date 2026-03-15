@@ -11,7 +11,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -28,7 +28,6 @@
 #include <ql/termstructures/inflationtermstructure.hpp>
 #include <ql/termstructures/interpolatedcurve.hpp>
 #include <ql/math/interpolations/linearinterpolation.hpp>
-#include <ql/math/comparison.hpp>
 #include <utility>
 
 namespace QuantLib {
@@ -41,17 +40,15 @@ namespace QuantLib {
           protected InterpolatedCurve<Interpolator> {
       public:
         InterpolatedZeroInflationCurve(const Date& referenceDate,
-                                       const Calendar& calendar,
-                                       const DayCounter& dayCounter,
-                                       const Period& lag,
-                                       Frequency frequency,
                                        std::vector<Date> dates,
                                        const std::vector<Rate>& rates,
+                                       Frequency frequency,
+                                       const DayCounter& dayCounter,
+                                       const ext::shared_ptr<Seasonality>& seasonality = {},
                                        const Interpolator& interpolator = Interpolator());
 
         //! \name InflationTermStructure interface
         //@{
-        Date baseDate() const override;
         Date maxDate() const override;
         //@}
 
@@ -76,11 +73,10 @@ namespace QuantLib {
             construction.
         */
         InterpolatedZeroInflationCurve(const Date& referenceDate,
-                                       const Calendar& calendar,
-                                       const DayCounter& dayCounter,
-                                       const Period& lag,
+                                       Date baseDate,
                                        Frequency frequency,
-                                       Rate baseZeroRate,
+                                       const DayCounter& dayCounter,
+                                       const ext::shared_ptr<Seasonality>& seasonality = {},
                                        const Interpolator &interpolator = Interpolator());
     };
 
@@ -93,27 +89,17 @@ namespace QuantLib {
     template <class Interpolator>
     InterpolatedZeroInflationCurve<Interpolator>::InterpolatedZeroInflationCurve(
         const Date& referenceDate,
-        const Calendar& calendar,
-        const DayCounter& dayCounter,
-        const Period& lag,
-        Frequency frequency,
         std::vector<Date> dates,
         const std::vector<Rate>& rates,
+        Frequency frequency,
+        const DayCounter& dayCounter,
+        const ext::shared_ptr<Seasonality>& seasonality,
         const Interpolator& interpolator)
-    : ZeroInflationTermStructure(referenceDate, calendar, dayCounter, rates[0], lag, frequency),
+    : ZeroInflationTermStructure(referenceDate, dates.at(0), frequency, dayCounter, seasonality),
       InterpolatedCurve<Interpolator>(std::vector<Time>(), rates, interpolator),
       dates_(std::move(dates)) {
 
         QL_REQUIRE(dates_.size() > 1, "too few dates: " << dates_.size());
-
-        // check that the data starts from the beginning,
-        // i.e. referenceDate - lag, at least must be in the relevant
-        // period
-        std::pair<Date, Date> lim =
-            inflationPeriod(referenceDate - this->observationLag(), frequency);
-        QL_REQUIRE(lim.first <= dates_[0] && dates_[0] <= lim.second,
-                   "first data date is not in base period, date: "
-                       << dates_[0] << " not within [" << lim.first << "," << lim.second << "]");
 
         QL_REQUIRE(this->data_.size() == dates_.size(),
                    "indices/dates count mismatch: " << this->data_.size() << " vs "
@@ -131,25 +117,20 @@ namespace QuantLib {
     template <class Interpolator>
     InterpolatedZeroInflationCurve<Interpolator>::
     InterpolatedZeroInflationCurve(const Date& referenceDate,
-                                   const Calendar& calendar,
-                                   const DayCounter& dayCounter,
-                                   const Period& lag,
+                                   Date baseDate,
                                    Frequency frequency,
-                                   Rate baseZeroRate,
+                                   const DayCounter& dayCounter,
+                                   const ext::shared_ptr<Seasonality>& seasonality,
                                    const Interpolator& interpolator)
-    :  ZeroInflationTermStructure(referenceDate, calendar, dayCounter,
-                                  baseZeroRate, lag, frequency),
+    :  ZeroInflationTermStructure(referenceDate, baseDate, frequency, dayCounter, seasonality),
        InterpolatedCurve<Interpolator>(interpolator) {
     }
 
     template <class T>
-    Date InterpolatedZeroInflationCurve<T>::baseDate() const {
-        return dates_.front();
-    }
-
-    template <class T>
     Date InterpolatedZeroInflationCurve<T>::maxDate() const {
-        return inflationPeriod(dates_.back(), frequency()).second;
+        if (this->maxDate_ != Date())
+            return this->maxDate_;
+        return dates_.back();
     }
 
     template <class T>

@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -53,7 +53,7 @@ BOOST_FIXTURE_TEST_SUITE(QuantLibTests, TopLevelFixture)
 
 BOOST_AUTO_TEST_SUITE(SwingOptionTests)
 
-ext::function<Real(Real)> constant_b(Real b) {
+std::function<Real(Real)> constant_b(Real b) {
     return [=](Real x){ return b; };
 }
 
@@ -118,17 +118,17 @@ BOOST_AUTO_TEST_CASE(testExtendedOrnsteinUhlenbeckProcess) {
         ExtendedOrnsteinUhlenbeckProcess::Trapezodial,
         ExtendedOrnsteinUhlenbeckProcess::GaussLobatto};
 
-    ext::function<Real (Real)> f[] 
+    std::function<Real (Real)> f[] 
         = { [=](Real x) -> Real { return level; },
             [ ](Real x) -> Real { return x + 1.0; },
             [ ](Real x) -> Real { return std::sin(x); }}; 
 
-    for (Size n=0; n < LENGTH(f); ++n) {
+    for (Size n=0; n < std::size(f); ++n) {
         ExtendedOrnsteinUhlenbeckProcess refProcess(
             speed, vol, 0.0, f[n], 
             ExtendedOrnsteinUhlenbeckProcess::GaussLobatto, 1e-6);
 
-        for (Size i=0; i < LENGTH(discr)-1; ++i) {
+        for (Size i=0; i < std::size(discr)-1; ++i) {
             ExtendedOrnsteinUhlenbeckProcess eouProcess(
                                       speed, vol, 0.0, f[n], discr[i]);
 

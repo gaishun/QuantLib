@@ -27,7 +27,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -86,18 +86,6 @@ namespace QuantLib {
         };
         ext::shared_ptr<Impl> impl_;
       public:
-        /*! \deprecated Use `auto` or `decltype` instead.
-                        Deprecated in version 1.29.
-        */
-        QL_DEPRECATED
-        typedef Real argument_type;
-
-        /*! \deprecated Use `auto` or `decltype` instead.
-                        Deprecated in version 1.29.
-        */
-        QL_DEPRECATED
-        typedef Real result_type;
-
         //! basic template implementation
         template <class I1, class I2>
         class templateImpl : public Impl {
@@ -105,10 +93,10 @@ namespace QuantLib {
             templateImpl(const I1& xBegin, const I1& xEnd, const I2& yBegin,
                          const int requiredPoints = 2)
             : xBegin_(xBegin), xEnd_(xEnd), yBegin_(yBegin) {
-                QL_REQUIRE(static_cast<int>(xEnd_-xBegin_) >= requiredPoints,
+                QL_REQUIRE(static_cast<std::ptrdiff_t>(xEnd_-xBegin_) >= requiredPoints,
                            "not enough points to interpolate: at least " <<
                            requiredPoints <<
-                           " required, " << static_cast<int>(xEnd_-xBegin_)<< " provided");
+                           " required, " << static_cast<std::ptrdiff_t>(xEnd_-xBegin_)<< " provided");
             }
             Real xMin() const override { return *xBegin_; }
             Real xMax() const override { return *(xEnd_ - 1); }
@@ -143,7 +131,6 @@ namespace QuantLib {
         };
 
         Interpolation() = default;
-        ~Interpolation() override = default;
         bool empty() const { return !impl_; }
         Real operator()(Real x, bool allowExtrapolation = false) const {
             checkRange(x,allowExtrapolation);
@@ -181,6 +168,7 @@ namespace QuantLib {
                        << impl_->xMin() << ", " << impl_->xMax()
                        << "]: extrapolation at " << x << " not allowed");
         }
+        friend class MixedLinearCubicInterpolation;
     };
 
 }

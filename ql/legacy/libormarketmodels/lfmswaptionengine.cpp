@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -39,14 +39,14 @@ namespace QuantLib {
 
         static const Spread basisPoint = 1.0e-4;
 
-        VanillaSwap swap = *arguments_.swap;
-        swap.setPricingEngine(ext::shared_ptr<PricingEngine>(
-                           new DiscountingSwapEngine(discountCurve_, false)));
+        auto swap = arguments_.swap;
+        swap->setPricingEngine(ext::shared_ptr<PricingEngine>(
+                                  new DiscountingSwapEngine(discountCurve_, false)));
 
-        Spread correction = swap.spread() *
-            std::fabs(swap.floatingLegBPS()/swap.fixedLegBPS());
-        Rate fixedRate = swap.fixedRate() - correction;
-        Rate fairRate = swap.fairRate() - correction;
+        Spread correction = swap->spread() *
+            std::fabs(swap->floatingLegBPS()/swap->fixedLegBPS());
+        Rate fixedRate = swap->fixedRate() - correction;
+        Rate fairRate = swap->fairRate() - correction;
 
         ext::shared_ptr<SwaptionVolatilityMatrix> volatility =
             model_->getSwaptionVolatilityMatrix();
@@ -65,9 +65,8 @@ namespace QuantLib {
         Option::Type w = arguments_.type==Swap::Payer ? Option::Call : Option::Put;
         Volatility vol = volatility->volatility(exercise, swapLength,
                                                 fairRate, true);
-        results_.value = (swap.fixedLegBPS()/basisPoint) *
+        results_.value = (swap->fixedLegBPS()/basisPoint) *
             blackFormula(w, fixedRate, fairRate, vol*std::sqrt(exercise));
     }
 
 }
-

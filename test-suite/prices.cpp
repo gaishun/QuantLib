@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -35,10 +35,10 @@ BOOST_AUTO_TEST_CASE(testMidEquivalent) {
 
     using boost::test_tools::tolerance;
 
-    BOOST_TEST(1.5 == midEquivalent(1, 2, 3, 4), tolerance(1e-14));
-    BOOST_TEST(1.5 == midEquivalent(1, 2, 0, 4), tolerance(1e-14));
-    BOOST_TEST(1.5 == midEquivalent(1, 2, 3, 0), tolerance(1e-14));
-    BOOST_TEST(1.5 == midEquivalent(1, 2, 0, 0), tolerance(1e-14));
+    BOOST_TEST(1.5 == midEquivalent(1, 2, 3, 4), tolerance<Real>(1e-14));
+    BOOST_TEST(1.5 == midEquivalent(1, 2, 0, 4), tolerance<Real>(1e-14));
+    BOOST_TEST(1.5 == midEquivalent(1, 2, 3, 0), tolerance<Real>(1e-14));
+    BOOST_TEST(1.5 == midEquivalent(1, 2, 0, 0), tolerance<Real>(1e-14));
 
     BOOST_TEST(1 == midEquivalent(1, 0, 3, 4));
     BOOST_TEST(1 == midEquivalent(1, 0, 0, 4));
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(testMidSafe) {
 
     using boost::test_tools::tolerance;
 
-    BOOST_TEST(1.5 == midSafe(1, 2), tolerance(1e-14));
+    BOOST_TEST(1.5 == midSafe(1, 2), tolerance<Real>(1e-14));
 
     BOOST_CHECK_THROW(midSafe(0, 0), QuantLib::Error);
     BOOST_CHECK_THROW(midSafe(1, 0), QuantLib::Error);
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(testMidSafe) {
 }
 
 BOOST_AUTO_TEST_CASE(testIntervalPriceInspectors) {
-    BOOST_TEST_MESSAGE("Testing IntervalPrice::<Inspectors>()...");
+    BOOST_TEST_MESSAGE("Testing IntervalPrice inspectors...");
 
     const IntervalPrice p(1, 2, 3, 4);
 
@@ -94,7 +94,7 @@ void testEquality(const IntervalPrice& lhs, const IntervalPrice& rhs) {
 }
 
 BOOST_AUTO_TEST_CASE(testIntervalPriceModifiers) {
-    BOOST_TEST_MESSAGE("Testing IntervalPrice::<Modifiers>()...");
+    BOOST_TEST_MESSAGE("Testing IntervalPrice modifiers...");
 
     IntervalPrice p(1, 2, 3, 4);
 
@@ -129,7 +129,7 @@ TimeSeries<IntervalPrice> createSeries() {
 }
 
 BOOST_AUTO_TEST_CASE(testIntervalPriceMakeSeries) {
-    BOOST_TEST_MESSAGE("Testing IntervalPrice::makeSeries()...");
+    BOOST_TEST_MESSAGE("Testing creation of IntervalPrice series...");
 
     const TimeSeries<IntervalPrice> priceSeries = createSeries();
 
@@ -139,32 +139,8 @@ BOOST_AUTO_TEST_CASE(testIntervalPriceMakeSeries) {
     testEquality(priceSeries[{(Day)3, (Month)3, (Year)2003}], {13, 23, 33, 43});
 }
 
-BOOST_AUTO_TEST_CASE(testIntervalPriceExtractValues) {
-    BOOST_TEST_MESSAGE("Testing IntervalPrice::makeSeries()...");
-
-    const std::vector<Real> openValues =
-        IntervalPrice::extractValues(createSeries(), IntervalPrice::Open);
-    const std::vector<Real> expectedOpenValues{11, 12, 13};
-    BOOST_TEST(openValues == expectedOpenValues);
-
-    const std::vector<Real> closeValues =
-        IntervalPrice::extractValues(createSeries(), IntervalPrice::Close);
-    const std::vector<Real> expectedCloseValues{21, 22, 23};
-    BOOST_TEST(closeValues == expectedCloseValues);
-
-    const std::vector<Real> highValues =
-        IntervalPrice::extractValues(createSeries(), IntervalPrice::High);
-    const std::vector<Real> expectedHighValues{31, 32, 33};
-    BOOST_TEST(highValues == expectedHighValues);
-
-    const std::vector<Real> lowValues =
-        IntervalPrice::extractValues(createSeries(), IntervalPrice::Low);
-    const std::vector<Real> expectedLowValues{41, 42, 43};
-    BOOST_TEST(lowValues == expectedLowValues);
-}
-
 BOOST_AUTO_TEST_CASE(testIntervalPriceExtractComponent) {
-    BOOST_TEST_MESSAGE("Testing IntervalPrice::makeSeries()...");
+    BOOST_TEST_MESSAGE("Testing extraction of IntervalPrice values...");
 
     const TimeSeries<Real> openSeries =
         IntervalPrice::extractComponent(createSeries(), IntervalPrice::Open);

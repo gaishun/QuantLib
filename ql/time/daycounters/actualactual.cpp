@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -124,13 +124,12 @@ namespace QuantLib {
     }
 
     ext::shared_ptr<DayCounter::Impl>
-    ActualActual::implementation(ActualActual::Convention c,
-                                 const Schedule& schedule) {
+    ActualActual::implementation(ActualActual::Convention c, Schedule schedule) {
         switch (c) {
           case ISMA:
           case Bond:
             if (!schedule.empty())
-                return ext::shared_ptr<DayCounter::Impl>(new ISMA_Impl(schedule));
+                return ext::shared_ptr<DayCounter::Impl>(new ISMA_Impl(std::move(schedule)));
             else
                 return ext::shared_ptr<DayCounter::Impl>(new Old_ISMA_Impl);
           case ISDA:

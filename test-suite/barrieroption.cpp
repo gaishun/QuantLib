@@ -14,7 +14,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -29,7 +29,6 @@
 #include <ql/time/daycounters/business252.hpp>
 #include <ql/math/interpolations/bicubicsplineinterpolation.hpp>
 #include <ql/instruments/barrieroption.hpp>
-#include <ql/instruments/dividendbarrieroption.hpp>
 #include <ql/instruments/europeanoption.hpp>
 #include <ql/models/equity/hestonmodel.hpp>
 #include <ql/pricingengines/barrier/analyticbarrierengine.hpp>
@@ -102,22 +101,6 @@ BOOST_AUTO_TEST_SUITE(BarrierOptionTests)
                << "    calculated " << greekName << ": " << calculated << "\n"\
                << "    error:            " << error << "\n" \
                << "    tolerance:        " << tolerance);
-
-
-std::string barrierTypeToString(Barrier::Type type) {
-    switch(type){
-      case Barrier::DownIn:
-        return std::string("Down-and-in");
-      case Barrier::UpIn:
-        return std::string("Up-and-in");
-      case Barrier::DownOut:
-        return std::string("Down-and-out");
-      case Barrier::UpOut:
-        return std::string("Up-and-out");
-      default:
-        QL_FAIL("unknown exercise type");
-    }
-}
 
 struct BarrierOptionData {
     Barrier::Type type;
@@ -247,6 +230,100 @@ BOOST_AUTO_TEST_CASE(testParity) {
                     << "\n    error:      " << error);
     }
 }
+
+BOOST_AUTO_TEST_CASE(testPutCallSymmetry) {
+    BOOST_TEST_MESSAGE(
+        "Testing put-call symmetry for barrier options...");
+
+    Date today = Settings::instance().evaluationDate();
+
+    struct PutCallSymmetryTestCase {
+        Real callStrike;
+        Real callBarrier;
+        Barrier::Type callType;
+        Real putStrike;
+        Real putBarrier;
+        Barrier::Type putType;
+    };
+
+    PutCallSymmetryTestCase cases[] = {
+        { 90, 95, Barrier::DownOut, 111.11111, 105.26315, Barrier::UpOut },
+        { 95, 95, Barrier::DownOut, 105.26315, 105.26315, Barrier::UpOut },
+        { 100, 95, Barrier::DownOut, 100.0, 105.26315, Barrier::UpOut },
+        { 105, 95, Barrier::DownOut, 95.23809, 105.26315, Barrier::UpOut },
+        { 110, 95, Barrier::DownOut, 90.90909, 105.26315, Barrier::UpOut },
+
+        { 90.0, 120.0, Barrier::UpOut, 111.11111, 83.33333, Barrier::DownOut },
+        { 95.0, 120.0, Barrier::UpOut, 105.26315, 83.33333, Barrier::DownOut },
+        { 100.0, 120.0, Barrier::UpOut, 100.0, 83.33333, Barrier::DownOut },
+        { 105.0, 120.0, Barrier::UpOut, 95.23809, 83.33333, Barrier::DownOut },
+        { 110.0, 120.0, Barrier::UpOut, 90.90909, 83.33333, Barrier::DownOut }
+    };
+
+    DayCounter dc = Actual360();
+    Date maturity = today + 360;
+    ext::shared_ptr<Exercise> exercise =
+        ext::make_shared<EuropeanExercise>(maturity);
+    Real r = 0.01;
+    Real rebate = 0.0;
+    Real spotPrice = 100;
+
+    ext::shared_ptr<SimpleQuote> spot = ext::make_shared<SimpleQuote>();
+    ext::shared_ptr<SimpleQuote> qRateCall = ext::make_shared<SimpleQuote>(0.0);
+    ext::shared_ptr<SimpleQuote> rRateCall = ext::make_shared<SimpleQuote>(r);
+    ext::shared_ptr<SimpleQuote> rRatePut = ext::make_shared<SimpleQuote>(0.0);
+    ext::shared_ptr<SimpleQuote> qRatePut = ext::make_shared<SimpleQuote>(r);
+    ext::shared_ptr<SimpleQuote> vol = ext::make_shared<SimpleQuote>(0.25);
+
+    Handle<Quote> underlying(spot);
+    Handle<YieldTermStructure> dividendTSCall(flatRate(today, qRateCall, dc));
+    Handle<YieldTermStructure> dividendTSPut(flatRate(today, qRatePut, dc));
+    Handle<YieldTermStructure> riskFreeTSCall(flatRate(today, rRateCall, dc));
+    Handle<YieldTermStructure> riskFreeTSPut(flatRate(today, rRatePut, dc));
+    Handle<BlackVolTermStructure> blackVolTS(flatVol(today, vol, dc));
+
+    const ext::shared_ptr<BlackScholesMertonProcess> processCall =
+        ext::make_shared<BlackScholesMertonProcess>(underlying,
+                                                      dividendTSCall,
+                                                      riskFreeTSCall,
+                                                      blackVolTS);
+    const ext::shared_ptr<BlackScholesMertonProcess> processPut =
+        ext::make_shared<BlackScholesMertonProcess>(underlying,
+                                                      dividendTSPut,
+                                                      riskFreeTSPut,
+                                                      blackVolTS);
+
+    ext::shared_ptr<PricingEngine> callEngine =
+        ext::make_shared<AnalyticBarrierEngine>(processCall);
+    ext::shared_ptr<PricingEngine> putEngine =
+        ext::make_shared<AnalyticBarrierEngine>(processPut);
+
+    for (auto& i : cases) {
+        ext::shared_ptr<StrikedTypePayoff> putPayoff =
+            ext::make_shared<PlainVanillaPayoff>(Option::Put, i.putStrike);
+        ext::shared_ptr<StrikedTypePayoff> callPayoff =
+            ext::make_shared<PlainVanillaPayoff>(Option::Call, i.callStrike);
+        BarrierOption putOption(i.putType,
+                                 i.putBarrier, rebate,
+                                 putPayoff, exercise);
+        putOption.setPricingEngine(putEngine);
+        BarrierOption callOption(i.callType,
+                                  i.callBarrier, rebate,
+                                  callPayoff, exercise);
+        callOption.setPricingEngine(callEngine);
+
+        spot->setValue(spotPrice);
+        Real putValue = putOption.NPV();
+        Real callValue = callOption.NPV();
+        Real callAmount = (i.putStrike / spotPrice);
+        Real error = std::fabs(putValue - callAmount * callValue);
+        Real tolerance = 1e-4;
+        if (error > tolerance)
+            BOOST_ERROR("Failed to reproduce the put-call symmetry for the partial-time barrier options "
+                        << "\n    error:      " << error);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testHaugValues) {
 
     BOOST_TEST_MESSAGE("Testing barrier options against Haug's values...");
@@ -836,121 +913,6 @@ BOOST_AUTO_TEST_CASE(testLocalVolAndHestonComparison) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testOldDividendBarrierOption) {
-    BOOST_TEST_MESSAGE("Testing old-style barrier option pricing with discrete dividends...");
-
-    const DayCounter dc = Actual365Fixed();
-
-    const Date today(11, February, 2018);
-    const Date maturity = today + Period(1, Years);
-    Settings::instance().evaluationDate() = today;
-
-    const Real spot = 100.0;
-    const Real strike = 105.0;
-    const Real rebate = 5.0;
-
-    const Real barriers[] = { 80.0, 120.0 };
-    const Barrier::Type barrierTypes[] = { Barrier::DownOut, Barrier::UpOut };
-
-    const Rate r = 0.05;
-    const Rate q = 0.0;
-    const Volatility v = 0.02;
-
-    const Handle<Quote> s0(ext::make_shared<SimpleQuote>(spot));
-    const Handle<YieldTermStructure> qTS(flatRate(today, q, dc));
-    const Handle<YieldTermStructure> rTS(flatRate(today, r, dc));
-    const Handle<BlackVolTermStructure> volTS(flatVol(today, v, dc));
-
-    const ext::shared_ptr<BlackScholesMertonProcess> bsProcess =
-        ext::make_shared<BlackScholesMertonProcess>(s0, qTS, rTS, volTS);
-
-    const ext::shared_ptr<PricingEngine> douglas =
-        ext::make_shared<FdBlackScholesBarrierEngine>(
-            bsProcess, 100, 100, 0, FdmSchemeDesc::Douglas());
-
-    const ext::shared_ptr<PricingEngine> crankNicolson =
-        ext::make_shared<FdBlackScholesBarrierEngine>(
-            bsProcess, 100, 100, 0, FdmSchemeDesc::CrankNicolson());
-
-    const ext::shared_ptr<PricingEngine> craigSnyed =
-        ext::make_shared<FdBlackScholesBarrierEngine>(
-            bsProcess, 100, 100, 0, FdmSchemeDesc::CraigSneyd());
-
-    const ext::shared_ptr<PricingEngine> hundsdorfer =
-        ext::make_shared<FdBlackScholesBarrierEngine>(
-            bsProcess, 100, 100, 0, FdmSchemeDesc::Hundsdorfer());
-
-    const ext::shared_ptr<PricingEngine> mol =
-        ext::make_shared<FdBlackScholesBarrierEngine>(
-            bsProcess, 100, 100, 0, FdmSchemeDesc::MethodOfLines());
-
-    const ext::shared_ptr<PricingEngine> trPDF2 =
-        ext::make_shared<FdBlackScholesBarrierEngine>(
-            bsProcess, 100, 100, 0, FdmSchemeDesc::TrBDF2());
-
-    const ext::shared_ptr<PricingEngine> hestonEngine =
-        ext::make_shared<FdHestonBarrierEngine>(
-            ext::make_shared<HestonModel>(
-                ext::make_shared<HestonProcess>(
-                    rTS, qTS, s0, v*v, 1.0, v*v, 0.005, 0.0)), 50, 101, 3);
-
-    const ext::shared_ptr<PricingEngine> engines[] = {
-        douglas, crankNicolson,
-        trPDF2, craigSnyed, hundsdorfer, mol, hestonEngine
-    };
-
-    const ext::shared_ptr<StrikedTypePayoff> payoff =
-        ext::make_shared<PlainVanillaPayoff>(Option::Put, strike);
-
-    const ext::shared_ptr<Exercise> exercise =
-        ext::make_shared<EuropeanExercise>(maturity);
-
-    const Real divAmount = 30;
-    const Date divDate = today + Period(6, Months);
-
-    const Real expected[] = {
-        rTS->discount(divDate)*rebate,
-        (*payoff)(
-            (spot - divAmount*rTS->discount(divDate))/rTS->discount(maturity))
-            *rTS->discount(maturity)
-    };
-
-    const Real relTol = 1e-4;
-    for (Size i=0; i < LENGTH(barriers); ++i) {
-        for (const auto& engine : engines) {
-            const Real barrier = barriers[i];
-            const Barrier::Type barrierType = barrierTypes[i];
-
-            QL_DEPRECATED_DISABLE_WARNING
-
-            DividendBarrierOption barrierOption(
-                barrierType, barrier, rebate, payoff, exercise,
-                std::vector<Date>(1, divDate),
-                std::vector<Real>(1, divAmount));
-
-            QL_DEPRECATED_ENABLE_WARNING
-
-            barrierOption.setPricingEngine(engine);
-
-            const Real calculated = barrierOption.NPV();
-
-            const Real diff = std::fabs(calculated - expected[i]);
-            if (diff > relTol*expected[i]) {
-                BOOST_FAIL("Failed to reproduce barrier price with "
-                        "discrete dividends for "
-                           << "\n    strike:     " << strike
-                           << "\n    barrier:    " << barrier
-                           << "\n    maturity:   " << maturity
-                           << "\n    calculated: " << calculated
-                           << "\n    expected:   " << expected[i]
-                           << std::scientific
-                           << "\n    difference  " << diff
-                           << "\n    tolerance   " << relTol * expected[i]);
-            }
-        }
-    }
-}
-
 BOOST_AUTO_TEST_CASE(testDividendBarrierOption) {
     BOOST_TEST_MESSAGE("Testing barrier option pricing with discrete dividends...");
 
@@ -1031,8 +993,8 @@ BOOST_AUTO_TEST_CASE(testDividendBarrierOption) {
     };
 
     Real relTol = 2e-4;
-    for (Size i=0; i < LENGTH(barriers); ++i) {
-        for (Size j=0; j < LENGTH(engines); ++j) {
+    for (Size i=0; i < std::size(barriers); ++i) {
+        for (Size j=0; j < std::size(engines); ++j) {
             Real barrier = barriers[i];
             Barrier::Type barrierType = barrierTypes[i];
 
@@ -1111,8 +1073,8 @@ BOOST_AUTO_TEST_CASE(testDividendBarrierOptionWithDividendsPastMaturity) {
     auto payoff = ext::make_shared<PlainVanillaPayoff>(Option::Put, strike);
     auto exercise = ext::make_shared<EuropeanExercise>(maturity);
 
-    for (Size i=0; i < LENGTH(barriers); ++i) {
-        for (Size j=0; j < LENGTH(engines); ++j) {
+    for (Size i=0; i < std::size(barriers); ++i) {
+        for (Size j=0; j < std::size(engines); ++j) {
             Real barrier = barriers[i];
             Barrier::Type barrierType = barrierTypes[i];
 
@@ -1138,46 +1100,6 @@ BOOST_AUTO_TEST_CASE(testDividendBarrierOptionWithDividendsPastMaturity) {
                             << "\n    difference        " << diff);
             }
         }
-    }
-}
-
-BOOST_AUTO_TEST_CASE(testBarrierAndDividendEngine) {
-    BOOST_TEST_MESSAGE("Testing the use of a single engine for barrier and dividend options...");
-
-    auto today = Date(1, January, 2023);
-    Settings::instance().evaluationDate() = today;
-
-    auto u = Handle<Quote>(ext::make_shared<SimpleQuote>(100.0));
-    auto r = Handle<YieldTermStructure>(ext::make_shared<FlatForward>(today, 0.01, Actual360()));
-    auto sigma = Handle<BlackVolTermStructure>(
-        ext::make_shared<BlackConstantVol>(today, TARGET(), 0.20, Actual360()));
-    auto process = ext::make_shared<BlackScholesProcess>(u, r, sigma);
-
-    auto engine = ext::make_shared<FdBlackScholesBarrierEngine>(process);
-
-    auto payoff = ext::make_shared<PlainVanillaPayoff>(Option::Call, 90.0);
-
-    auto option1 = BarrierOption(Barrier::DownIn, 80.0, 0.0, payoff,
-                                 ext::make_shared<EuropeanExercise>(Date(1, June, 2023)));
-    QL_DEPRECATED_DISABLE_WARNING
-    auto option2 = DividendBarrierOption(Barrier::DownIn, 80.0, 0.0, payoff,
-                                         ext::make_shared<EuropeanExercise>(Date(1, June, 2023)),
-                                         {Date(1, February, 2023)}, {1.0});
-    QL_DEPRECATED_ENABLE_WARNING
-
-    option1.setPricingEngine(engine);
-    option2.setPricingEngine(engine);
-
-    auto npv_before = option1.NPV();
-    option2.NPV();
-
-    option1.recalculate();
-    auto npv_after = option1.NPV();
-
-    if (npv_after != npv_before) {
-        BOOST_FAIL("Failed to price barrier option correctly "
-                   "after using the engine on a dividend option: "
-                   << "\n    before usage: " << npv_before << "\n    after usage:  " << npv_after);
     }
 }
 
@@ -1218,7 +1140,7 @@ BOOST_AUTO_TEST_CASE(testImpliedVolatility) {
     Real targetWithDividends[] = { 8.0, 12.0, 9.0, 8.0 };
     Real tolerance = 1e-5;
 
-    for (Size i=0; i < LENGTH(barriers); ++i) {
+    for (Size i=0; i < std::size(barriers); ++i) {
         Real barrier = barriers[i];
         Barrier::Type barrierType = barrierTypes[i];
 

@@ -12,7 +12,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -54,6 +54,7 @@ namespace QuantLib {
         MakeVanillaSwap& withEffectiveDate(const Date&);
         MakeVanillaSwap& withTerminationDate(const Date&);
         MakeVanillaSwap& withRule(DateGeneration::Rule r);
+        MakeVanillaSwap& withPaymentConvention(BusinessDayConvention bdc);
 
         MakeVanillaSwap& withFixedLegTenor(const Period& t);
         MakeVanillaSwap& withFixedLegCalendar(const Calendar& cal);
@@ -73,6 +74,7 @@ namespace QuantLib {
                                                    BusinessDayConvention bdc);
         MakeVanillaSwap& withFloatingLegRule(DateGeneration::Rule r);
         MakeVanillaSwap& withFloatingLegEndOfMonth(bool flag = true);
+        MakeVanillaSwap& withMaturityEndOfMonth(bool flag = true);
         MakeVanillaSwap& withFloatingLegFirstDate(const Date& d);
         MakeVanillaSwap& withFloatingLegNextToLastDate(const Date& d);
         MakeVanillaSwap& withFloatingLegDayCount(const DayCounter& dc);
@@ -90,7 +92,7 @@ namespace QuantLib {
         Rate fixedRate_;
         Period forwardStart_;
 
-        Natural settlementDays_;
+        Natural settlementDays_ = Null<Natural>();
         Date effectiveDate_, terminationDate_;
         Calendar fixedCalendar_, floatCalendar_;
 
@@ -103,11 +105,13 @@ namespace QuantLib {
         DateGeneration::Rule fixedRule_ = DateGeneration::Backward,
                              floatRule_ = DateGeneration::Backward;
         bool fixedEndOfMonth_ = false, floatEndOfMonth_ = false;
+        ext::optional<bool> maturityEndOfMonth_;
         Date fixedFirstDate_, fixedNextToLastDate_;
         Date floatFirstDate_, floatNextToLastDate_;
         Spread floatSpread_ = 0.0;
         DayCounter fixedDayCount_, floatDayCount_;
         ext::optional<bool> useIndexedCoupons_;
+        ext::optional<BusinessDayConvention> paymentConvention_;
 
         ext::shared_ptr<PricingEngine> engine_;
     };

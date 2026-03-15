@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -24,7 +24,7 @@
 #ifndef quantlib_fd_cir_vanilla_engine_hpp
 #define quantlib_fd_cir_vanilla_engine_hpp
 
-#include <ql/instruments/dividendvanillaoption.hpp>
+#include <ql/instruments/vanillaoption.hpp>
 #include <ql/methods/finitedifferences/solvers/fdmbackwardsolver.hpp>
 #include <ql/methods/finitedifferences/solvers/fdmsolverdesc.hpp>
 #include <ql/models/equity/hestonmodel.hpp>
@@ -36,15 +36,12 @@ namespace QuantLib {
 
     class FdmQuantoHelper;
 
-    QL_DEPRECATED_DISABLE_WARNING
-
     //! Finite-differences CIR vanilla option engine
     /*! \ingroup vanillaengines
 
         \test the engine has been tested to converge among different schemes.
     */
-    class FdCIRVanillaEngine : public DividendVanillaOption::engine {
-        QL_DEPRECATED_ENABLE_WARNING
+    class FdCIRVanillaEngine : public VanillaOption::engine {
       public:
         FdCIRVanillaEngine(ext::shared_ptr<CoxIngersollRossProcess> cirProcess,
                            ext::shared_ptr<GeneralizedBlackScholesProcess> bsProcess,
@@ -76,7 +73,6 @@ namespace QuantLib {
         ext::shared_ptr<CoxIngersollRossProcess> cirProcess_;
         ext::shared_ptr<FdmQuantoHelper> quantoHelper_;
         DividendSchedule dividends_;
-        bool explicitDividends_;
         const Size tGrid_, xGrid_, rGrid_, dampingSteps_;
         const Real rho_;
         const FdmSchemeDesc schemeDesc_;
@@ -110,7 +106,6 @@ namespace QuantLib {
         ext::shared_ptr<CoxIngersollRossProcess> cirProcess_;
         ext::shared_ptr<GeneralizedBlackScholesProcess> bsProcess_;
         DividendSchedule dividends_;
-        bool explicitDividends_ = false;
         const Real rho_;
         Size tGrid_ = 10, xGrid_ = 100, rGrid_ = 100, dampingSteps_ = 0;
         ext::shared_ptr<FdmSchemeDesc> schemeDesc_;

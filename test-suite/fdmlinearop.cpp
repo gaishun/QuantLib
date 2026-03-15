@@ -12,7 +12,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -22,7 +22,6 @@
 #include "preconditions.hpp"
 #include "toplevelfixture.hpp"
 #include "utilities.hpp"
-#include <ql/functional.hpp>
 #include <ql/math/integrals/discreteintegrals.hpp>
 #include <ql/math/interpolations/bicubicsplineinterpolation.hpp>
 #include <ql/math/interpolations/bilinearinterpolation.hpp>
@@ -73,6 +72,7 @@
 #include <ql/time/daycounters/actual365fixed.hpp>
 #include <boost/numeric/ublas/operation.hpp>
 #include <boost/numeric/ublas/vector.hpp>
+#include <functional>
 #include <numeric>
 #include <utility>
 
@@ -1205,11 +1205,11 @@ BOOST_AUTO_TEST_CASE(testBiCGstab) {
     const boost::numeric::ublas::compressed_matrix<Real> a
         = createTestMatrix(n, m, theta);
 
-    const ext::function<Array(const Array&)> matmult
+    const std::function<Array(const Array&)> matmult
         = [&](const Array& _x) { return axpy(a, _x); };
 
     SparseILUPreconditioner ilu(a, 4);
-    ext::function<Array(const Array&)> precond
+    std::function<Array(const Array&)> precond
         = [&](const Array& _x) { return ilu.apply(_x); };
 
     Array b(n*m);
@@ -1241,11 +1241,11 @@ BOOST_AUTO_TEST_CASE(testGMRES) {
     const boost::numeric::ublas::compressed_matrix<Real> a
         = createTestMatrix(n, m, theta);
 
-    const ext::function<Array(const Array&)> matmult
+    const std::function<Array(const Array&)> matmult
         = [&](const Array& _x) { return axpy(a, _x); };
     
     SparseILUPreconditioner ilu(a, 4);
-    ext::function<Array(const Array&)> precond
+    std::function<Array(const Array&)> precond
         = [&](const Array& _x) { return ilu.apply(_x); };
     
     Array b(n*m);

@@ -11,7 +11,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
 
  This program is distributed in the hope that it will be useful, but
@@ -60,12 +60,6 @@ namespace QuantLib {
         ext::shared_ptr<SwaptionVolatilityStructure> volatilityStructure_;
         ext::shared_ptr<SmileSection> smile_;
     };
-
-    /*! \deprecated Renamed to MarketQuotedOptionPricer.
-         Deprecated in version 1.31.
-    */
-    [[deprecated("Renamed to MarketQuotedOptionPricer")]]
-    typedef MarketQuotedOptionPricer BlackVanillaOptionPricer;
 
     class GFunction {
       public:
@@ -268,17 +262,6 @@ namespace QuantLib {
         // private:
         class Function {
           public:
-            /*! \deprecated Use `auto` or `decltype` instead.
-                            Deprecated in version 1.29.
-            */
-            QL_DEPRECATED
-            typedef Real argument_type;
-
-            /*! \deprecated Use `auto` or `decltype` instead.
-                            Deprecated in version 1.29.
-            */
-            QL_DEPRECATED
-            typedef Real result_type;
             virtual ~Function() = default;
             virtual Real operator()(Real x) const = 0;
         };

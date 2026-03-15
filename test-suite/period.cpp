@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -19,7 +19,7 @@
 
 #include "toplevelfixture.hpp"
 #include "utilities.hpp"
-#include "ql/time/period.hpp"
+#include <ql/time/period.hpp>
 
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(testWeeksDaysAlgebra) {
 }
 
 BOOST_AUTO_TEST_CASE(testOperators) {
-    BOOST_TEST_MESSAGE("Testing specific operators...");
+    BOOST_TEST_MESSAGE("Testing period operators...");
 
     Period p(3, Days);
     p *= 2;
@@ -141,13 +141,13 @@ BOOST_AUTO_TEST_CASE(testOperators) {
 }
 
 BOOST_AUTO_TEST_CASE(testConvertToYears) {
-    BOOST_TEST_MESSAGE("Testing converting periods to years...");
+    BOOST_TEST_MESSAGE("Testing conversion of periods to years...");
 
     BOOST_TEST(years(Period(0, Years)) == 0);
     BOOST_TEST(years(Period(1, Years)) == 1);
     BOOST_TEST(years(Period(5, Years)) == 5);
 
-    const auto tol = boost::test_tools::tolerance(1e-15);
+    const auto tol = boost::test_tools::tolerance<Real>(1e-15);
     BOOST_TEST(years(Period(1, Months)) == 1.0/12.0, tol);
     BOOST_TEST(years(Period(8, Months)) == 8.0/12.0, tol);
     BOOST_TEST(years(Period(12, Months)) == 1);
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(testConvertToYears) {
 }
 
 BOOST_AUTO_TEST_CASE(testConvertToMonths) {
-    BOOST_TEST_MESSAGE("Testing converting periods to months...");
+    BOOST_TEST_MESSAGE("Testing conversion of periods to months...");
 
     BOOST_TEST(months(Period(0, Months)) == 0);
     BOOST_TEST(months(Period(1, Months)) == 1);
@@ -166,13 +166,13 @@ BOOST_AUTO_TEST_CASE(testConvertToMonths) {
 }
 
 BOOST_AUTO_TEST_CASE(testConvertToWeeks) {
-    BOOST_TEST_MESSAGE("Testing converting periods to weeks...");
+    BOOST_TEST_MESSAGE("Testing conversion of periods to weeks...");
 
     BOOST_TEST(weeks(Period(0, Weeks)) == 0);
     BOOST_TEST(weeks(Period(1, Weeks)) == 1);
     BOOST_TEST(weeks(Period(5, Weeks)) == 5);
 
-    const auto tol = boost::test_tools::tolerance(1e-15);
+    const auto tol = boost::test_tools::tolerance<Real>(1e-15);
     BOOST_TEST(weeks(Period(1, Days)) == 1.0/7.0, tol);
     BOOST_TEST(weeks(Period(3, Days)) == 3.0/7.0, tol);
     BOOST_TEST(weeks(Period(11, Days)) == 11.0/7.0, tol);

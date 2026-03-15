@@ -15,7 +15,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -26,6 +26,7 @@
 #include "toplevelfixture.hpp"
 #include "utilities.hpp"
 #include <ql/experimental/volatility/noarbsabrinterpolation.hpp>
+#include <ql/experimental/math/laplaceinterpolation.hpp>
 #include <ql/math/bspline.hpp>
 #include <ql/math/functional.hpp>
 #include <ql/math/integrals/simpsonintegral.hpp>
@@ -38,17 +39,18 @@
 #include <ql/math/interpolations/kernelinterpolation2d.hpp>
 #include <ql/math/interpolations/lagrangeinterpolation.hpp>
 #include <ql/math/interpolations/linearinterpolation.hpp>
+#include <ql/math/interpolations/mixedinterpolation.hpp>
 #include <ql/math/interpolations/multicubicspline.hpp>
 #include <ql/math/interpolations/sabrinterpolation.hpp>
 #include <ql/math/kernelfunctions.hpp>
 #include <ql/math/optimization/levenbergmarquardt.hpp>
 #include <ql/math/randomnumbers/sobolrsg.hpp>
 #include <ql/math/richardsonextrapolation.hpp>
-#include <ql/tuple.hpp>
 #include <ql/utilities/dataformatters.hpp>
 #include <ql/utilities/null.hpp>
 #include <cmath>
 #include <utility>
+#include <tuple>
 
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
@@ -265,7 +267,7 @@ BOOST_AUTO_TEST_CASE(testSplineErrorOnGaussianValues) {
     // results from the paper
     Real scaleFactor = 1.9;
 
-    for (Size i=0; i<LENGTH(points); i++) {
+    for (Size i=0; i<std::size(points); i++) {
         Size n = points[i];
         std::vector<Real> x = xRange(-1.7, 1.9, n);
         std::vector<Real> y = gaussian(x);
@@ -537,7 +539,7 @@ BOOST_AUTO_TEST_CASE(testSplineOnGenericValues) {
     const Real generic_natural_y2[] = { 0.0, 1.5, -1.5, 0.0 };
 
     Real interpolated, error;
-    Size i, n = LENGTH(generic_x);
+    Size i, n = std::size(generic_x);
     std::vector<Real> x35(3);
 
     // Natural spline
@@ -938,7 +940,7 @@ BOOST_AUTO_TEST_CASE(testAsFunctor) {
     f.update();
 
     const Real x2[] = { -2.0, -1.0, 0.0, 1.0, 3.0, 4.0, 5.0, 6.0, 7.0 };
-    Size N = LENGTH(x2);
+    Size N = std::size(x2);
     std::vector<Real> y2(N);
     Real tolerance = 1.0e-12;
 
@@ -1016,7 +1018,7 @@ BOOST_AUTO_TEST_CASE(testBackwardFlat) {
     Interpolation f = BackwardFlatInterpolation(std::begin(x), std::end(x), std::begin(y));
     f.update();
 
-    Size N = LENGTH(x);
+    Size N = std::size(x);
     Size i;
     Real tolerance = 1.0e-12;
 
@@ -1134,7 +1136,7 @@ BOOST_AUTO_TEST_CASE(testForwardFlat) {
     Interpolation f = ForwardFlatInterpolation(std::begin(x), std::end(x), std::begin(y));
     f.update();
 
-    Size N = LENGTH(x);
+    Size N = std::size(x);
     Size i;
     Real tolerance = 1.0e-12;
 
@@ -1241,6 +1243,38 @@ BOOST_AUTO_TEST_CASE(testForwardFlat) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testMixedLinearCubicMatchDerivatives) {
+    Size n = 6;
+    Size k = 2;
+
+    std::vector<Real> x, y;
+    x = xRange(-2.0, 2.0, n);
+    y = parabolic(x);
+
+    MixedLinearCubicInterpolation f(
+        x.begin(), x.end(), y.begin(),
+        k, MixedInterpolation::SplitRanges,
+        CubicInterpolation::Spline, false,
+        CubicInterpolation::FirstDerivative, Null<Real>(),
+        CubicInterpolation::SecondDerivative, 0.0);
+    f.update();
+
+    Real tolerance = 1.0e-12;
+    Real eps = tolerance / 10;
+
+    Real leftSide = f.derivative(x[k] - eps);
+    Real rightSide = f.derivative(x[k] + eps);
+    if (std::fabs(leftSide - rightSide) > tolerance) {
+        BOOST_ERROR(
+            "derivatives at the switch point do not match"
+            << std::fixed
+            << "\n    left side:  " << leftSide
+            << "\n    right side: " << rightSide
+            << std::scientific
+            << "\n    error:      " << std::fabs(leftSide - rightSide));
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testSabrInterpolation){
 
     BOOST_TEST_MESSAGE("Testing Sabr interpolation...");
@@ -1295,10 +1329,6 @@ BOOST_AUTO_TEST_CASE(testSabrInterpolation){
     }
 
     // Test SABR calibration against input parameters
-    // Use default values (but not null, since then parameters
-    // will then not be fixed during optimization, see the
-    // interpolation constructor, thus rendering the test cases
-    // with fixed parameters non-sensical)
     Real alphaGuess = std::sqrt(0.2);
     Real betaGuess = 0.5;
     Real nuGuess = std::sqrt(0.4);
@@ -1401,6 +1431,75 @@ BOOST_AUTO_TEST_CASE(testSabrInterpolation){
     }
 }
 
+
+struct SabrTestCase {
+    Time expiry;
+    Real forward;
+    Real alpha;
+    Real beta;
+    Real nu;
+    Real rho;
+};
+
+BOOST_AUTO_TEST_CASE(testSabrGuess){
+
+    BOOST_TEST_MESSAGE("Testing Sabr guess...");
+
+    #if BOOST_VERSION >= 107800
+
+    // table 3 in Le Floc'h and Kennedy.
+    // They only seems to use it with lognormal volatility
+    // and no shift; we extend the test here.
+    SabrTestCase cases[] = {
+        {0.058, 2016, 0.271, 1.0, 1.010, -0.345},
+        {0.153, 2016, 0.256, 1.0, 0.933, -0.321},
+        {0.230, 2016, 0.256, 1.0, 0.820, -0.346},
+        {0.479, 2016, 0.255, 1.0, 0.629, -0.370},
+        {0.729, 2016, 0.257, 1.0, 0.528, -0.403},
+        {1.227, 2016, 0.260, 1.0, 0.448, -0.429},
+        {1.726, 2016, 0.261, 1.0, 0.392, -0.440},
+        {2.244, 2016, 0.262, 1.0, 0.355, -0.445},
+        {2.742, 2016, 0.262, 1.0, 0.329, -0.445},
+        {3.241, 2016, 0.262, 1.0, 0.310, -0.447},
+        {4.239, 2016, 0.263, 1.0, 0.284, -0.452}
+    };
+
+    for (const auto& c : cases) {
+        for (auto type: {VolatilityType::ShiftedLognormal, VolatilityType::Normal}) {
+            for (auto shift: {0.0, 0.01, 0.1}) {
+                // strikes at forward and plus or minus 5%
+                Real k_m = c.forward * 0.95, k_0 = c.forward, k_p = c.forward * 1.05;
+                Real vol_m = shiftedSabrVolatility(k_m, c.forward, c.expiry, c.alpha, c.beta, c.nu, c.rho, shift, type);
+                Real vol_0 = shiftedSabrVolatility(k_0, c.forward, c.expiry, c.alpha, c.beta, c.nu, c.rho, shift, type);
+                Real vol_p = shiftedSabrVolatility(k_p, c.forward, c.expiry, c.alpha, c.beta, c.nu, c.rho, shift, type);
+
+                // try to invert smile and retrieve parameters
+                auto [alpha, beta, nu, rho] = sabrGuess(k_m, vol_m, k_0, vol_0, k_p, vol_p,
+                                                        c.forward, c.expiry, c.beta,
+                                                        shift, type);
+
+                if (std::fabs(alpha - c.alpha) > 0.0001)
+                    BOOST_ERROR("alpha = " << alpha << ", expected = " << c.alpha << ", error = " << alpha - c.alpha);
+                BOOST_CHECK_EQUAL(beta, c.beta);
+                if (std::fabs(nu - c.nu) > 0.01)
+                    BOOST_ERROR("nu = " << nu << ", expected = " << c.nu << ", error = " << nu - c.nu);
+                if (std::fabs(rho - c.rho) > 0.005)
+                    BOOST_ERROR("rho = " << rho << ", expected = " << c.rho << ", error = " << rho - c.rho);
+            }
+        }
+    }
+
+    #else
+
+    BOOST_CHECK_EXCEPTION(sabrGuess(99, 0.32, 100, 0.30, 101, 0.31,
+                                    100, 1.0, 0.5, 0.0, VolatilityType::Normal),
+                          Error,
+                          ExpectedErrorMessage("Boost 1.78 or later is required"));
+
+    #endif
+}
+
+
 BOOST_AUTO_TEST_CASE(testKernelInterpolation) {
 
     BOOST_TEST_MESSAGE("Testing kernel 1D interpolation...");
@@ -1472,7 +1571,7 @@ BOOST_AUTO_TEST_CASE(testKernelInterpolation) {
 
     for (Size j=0; j< ytd.size(); ++j) {
         std::vector<Real> currY=yd[j];
-        std::vector<Real> currTY=ytd[j];
+        const std::vector<Real>& currTY=ytd[j];
 
         // Build interpolation according to original grid + y-values
         KernelInterpolation f(deltaGrid.begin(), deltaGrid.end(),
@@ -1880,7 +1979,7 @@ BOOST_AUTO_TEST_CASE(testNoArbSabrInterpolation, *precondition(if_speed(Fast))){
     for (Size j=1; j<methods_.size(); ++j) { // skip simplex (gets caught in some cases)
         for (bool i : vegaWeighted) {
             for (bool k_a : isAlphaFixed) {
-                for (Size k_b=0; k_b<1/*LENGTH(isBetaFixed)*/; ++k_b) { // keep beta fixed (all 4 params free is a problem for this kind of test)
+                for (Size k_b=0; k_b<1/*std::size(isBetaFixed)*/; ++k_b) { // keep beta fixed (all 4 params free is a problem for this kind of test)
                     for (bool k_n : isNuFixed) {
                         for (bool k_r : isRhoFixed) {
                             NoArbSabrInterpolation noarbSabrInterpolation(
@@ -2115,7 +2214,7 @@ BOOST_AUTO_TEST_CASE(testLeFlochKennedySabrExample) {
 
     const Real expected[] = {0.408702473958, 0.428489933046, 0.585701651161};
 
-    for (Size i=0; i < LENGTH(strikes); ++i) {
+    for (Size i=0; i < std::size(strikes); ++i) {
         const Real strike = strikes[i];
         const Real vol =
             sabrFlochKennedyVolatility(strike, f0, t, alpha, beta, nu, rho);
@@ -2311,24 +2410,21 @@ BOOST_AUTO_TEST_CASE(testBSplines) {
     const Natural p = 2;
     const BSpline bspline(p, knots.size()-p-2, knots);
 
-    std::vector<ext::tuple<Natural, Real, Real>> referenceValues = {
-        ext::make_tuple(0, -0.95, 9.5238095238e-04),
-        ext::make_tuple(0, -0.01, 0.37337142857),
-        ext::make_tuple(0, 0.49, 0.84575238095),
-        ext::make_tuple(0, 1.21, 0.0),
-        ext::make_tuple(1, 1.49, 0.562987654321),
-        ext::make_tuple(1, 1.59, 0.490888888889),
-        ext::make_tuple(2, 1.99, 0.62429409171),
-        ext::make_tuple(3, 1.19, 0.0),
-        ext::make_tuple(3, 1.99, 0.12382936508),
-        ext::make_tuple(3, 3.59, 0.765914285714)
+    std::vector<std::tuple<Natural, Real, Real>> referenceValues = {
+        {0, -0.95, 9.5238095238e-04},
+        {0, -0.01, 0.37337142857},
+        {0, 0.49, 0.84575238095},
+        {0, 1.21, 0.0},
+        {1, 1.49, 0.562987654321},
+        {1, 1.59, 0.490888888889},
+        {2, 1.99, 0.62429409171},
+        {3, 1.19, 0.0},
+        {3, 1.99, 0.12382936508},
+        {3, 3.59, 0.765914285714}
     };
 
     const Real tol = 1e-10;
-    for (auto& referenceValue : referenceValues) {
-        const Natural idx = ext::get<0>(referenceValue);
-        const Real x = ext::get<1>(referenceValue);
-        const Real expected = ext::get<2>(referenceValue);
+    for (const auto& [idx, x, expected] : referenceValues) {
 
         const Real calculated = bspline(idx, x);
 
@@ -2499,6 +2595,292 @@ BOOST_AUTO_TEST_CASE(testChebyshevInterpolationUpdateY) {
                     << "\n    tolerance : " << tol);
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE(testLaplaceInterpolation) {
+    BOOST_TEST_MESSAGE("Testing Laplace interpolation...");
+
+    Real tol = 1E-12;
+    Real na = Null<Real>();
+
+    // full matrix
+
+    Matrix m1 = {
+        {1.0, 2.0, 4.0},
+        {6.0, 6.5, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m1);
+
+    BOOST_CHECK_CLOSE(m1(0, 0), 1.0, tol);
+    BOOST_CHECK_CLOSE(m1(0, 2), 4.0, tol);
+    BOOST_CHECK_CLOSE(m1(2, 0), 5.0, tol);
+    BOOST_CHECK_CLOSE(m1(2, 1), 3.0, tol);
+
+    // inner point
+
+    Matrix m2 = {
+        {1.0, 2.0, 4.0},
+        {6.0, na, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m2);
+
+    BOOST_CHECK_CLOSE(m2(1, 1), 4.5, tol);
+    BOOST_CHECK_CLOSE(m2(2, 1), 3.0, tol);
+
+    // boundaries
+
+    Matrix m3 = {
+        {1.0, na, 4.0},
+        {6.0, 6.5, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m3);
+
+    BOOST_CHECK_CLOSE(m3(0, 1), 2.5, tol);
+
+    Matrix m4 = {
+        {1.0, 2.0, 4.0},
+        {na, 6.5, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m4);
+
+    BOOST_CHECK_CLOSE(m4(1, 0), 3.0, tol);
+
+    Matrix m5 = {
+        {1.0, 2.0, 4.0},
+        {6.0, 6.5, 7.0},
+        {5.0, na, 2.0},
+    };
+
+    laplaceInterpolation(m5);
+
+    BOOST_CHECK_CLOSE(m5(2, 1), 3.5, tol);
+
+    Matrix m6 = {
+        {1.0, 2.0, 4.0},
+        {6.0, 6.5, na},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m6);
+
+    BOOST_CHECK_CLOSE(m6(1, 2), 3.0, tol);
+
+    // corners
+
+    Matrix m7 = {
+        {na, 2.0, 4.0},
+        {6.0, 6.5, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m7);
+
+    BOOST_CHECK_CLOSE(m7(0, 0), 4.0, tol);
+
+    Matrix m8 = {
+        {1.0, 2.0, 4.0},
+        {6.0, 6.5, 7.0},
+        {na, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m8);
+
+    BOOST_CHECK_CLOSE(m8(2, 0), 4.5, tol);
+
+    Matrix m9 = {
+        {1.0, 2.0, 4.0},
+        {6.0, 6.5, 7.0},
+        {5.0, 3.0, na},
+    };
+
+    laplaceInterpolation(m9);
+
+    BOOST_CHECK_CLOSE(m9(2, 2), 5.0, tol);
+
+    Matrix m10 = {
+        {1.0, 2.0, na},
+        {6.0, 6.5, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m10);
+
+    BOOST_CHECK_CLOSE(m10(0, 2), 4.5, tol);
+
+    // one dim (col vector)
+
+    Matrix m20 = { {na}, {na}, {3.0}, {5.0}, {7.0}, {na} };
+
+    laplaceInterpolation(m20);
+
+    BOOST_CHECK_CLOSE(m20(0, 0), 3.0, tol);
+    BOOST_CHECK_CLOSE(m20(1, 0), 3.0, tol);
+    BOOST_CHECK_CLOSE(m20(5, 0), 7.0, tol);
+
+    // one dim (row vector)
+
+    Matrix m21 = {{na, na, 3.0, 5.0, 7.0, na}};
+
+    laplaceInterpolation(m21);
+
+    BOOST_CHECK_CLOSE(m21(0, 0), 3.0, tol);
+    BOOST_CHECK_CLOSE(m21(0, 1), 3.0, tol);
+    BOOST_CHECK_CLOSE(m21(0, 5), 7.0, tol);
+
+    // non equidistant grid, inner point
+
+    Matrix m30 = {
+        {1.0, 2.0, 4.0},
+        {6.0, na, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m30, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
+
+    BOOST_CHECK_CLOSE(m30(1, 1), 26.0 / 6.0, tol);
+
+    // non equidistant grid, boundaries
+
+    Matrix m31 = {
+        {1.0, na, 4.0},
+        {6.0, 6.5, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m31, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
+
+    BOOST_CHECK_CLOSE(m31(0, 1), 6.0 / 3.0, tol);
+
+    Matrix m32 = {
+        {1.0, 2.0, 4.0},
+        {na, 6.5, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m32, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
+
+    BOOST_CHECK_CLOSE(m32(1, 0), 7.0 / 3.0, tol);
+
+    Matrix m33 = {
+        {1.0, 2.0, 4.0},
+        {6.0, 6.5, 7.0},
+        {5.0, na, 2.0},
+    };
+
+    laplaceInterpolation(m33, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
+
+    BOOST_CHECK_CLOSE(m33(2, 1), 12.0 / 3.0, tol);
+
+    Matrix m34 = {
+        {1.0, 2.0, 4.0},
+        {6.0, 6.5, na},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m34, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
+
+    BOOST_CHECK_CLOSE(m34(1, 2), 10.0 / 3.0, tol);
+
+    // non equidistant grid, corners
+
+    Matrix m35 = {
+        {na, 2.0, 4.0},
+        {6.0, 6.5, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m35, {1.0, 2.0, 4.0}, {1.0, 3.0, 7.0});
+
+    BOOST_CHECK_CLOSE(m35(0, 0), 10.0 / 3.0, tol);
+
+    Matrix m36 = {
+        {1.0, 2.0, 4.0},
+        {6.0, 6.5, 7.0},
+        {na, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m36, {1.0, 2.0, 4.0}, {1.0, 3.0, 7.0});
+
+    BOOST_CHECK_CLOSE(m36(2, 0), 18.0 / 5.0, tol);
+
+    Matrix m37 = {
+        {1.0, 2.0, 4.0},
+        {6.0, 6.5, 7.0},
+        {5.0, 3.0, na},
+    };
+
+    laplaceInterpolation(m37, {1.0, 2.0, 4.0}, {1.0, 3.0, 7.0});
+
+    BOOST_CHECK_CLOSE(m37(2, 2), 13.0 / 3.0, tol);
+
+    Matrix m38 = {
+        {1.0, 2.0, na},
+        {6.0, 6.5, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m38, {1.0, 2.0, 4.0}, {1.0, 2.0, 3.0});
+
+    BOOST_CHECK_CLOSE(m38(0, 2), 16.0 / 3.0, tol);
+
+    // single point with given value
+
+    Matrix m50 = {
+        {1.0},
+    };
+
+    laplaceInterpolation(m50);
+
+    BOOST_CHECK_CLOSE(m50(0, 0), 1.0, tol);
+
+    // single point with missing value
+
+    Matrix m51 = {
+        {Null<Real>()},
+    };
+
+    laplaceInterpolation(m51);
+
+    BOOST_CHECK_CLOSE(m51(0, 0), 0.0, tol);
+
+    // no point
+
+    LaplaceInterpolation l0([](const std::vector<Size>&) { return Null<Real>(); }, {});
+    BOOST_CHECK_CLOSE(l0({}), 0.0, tol);
+
+    // single test cases from actual issues observed in the field
+
+    std::vector<Real> tx = {0.0849315, 0.257534, 0.509589, 1.00548, 2.00274, 3.00274, 4.00274,
+                            5.00548,   7.00822,  10.0082,  15.011,  20.0137, 30.0219, 70.0493};
+    std::vector<Real> ty = {0.25, 1, 2, 3, 4, 5, 7, 10, 15, 20, 30, 100};
+    Matrix m52 = {{na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na},
+                  {na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na},
+                  {na, na, na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na},
+                  {na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na},
+                  {na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na},
+                  {na, na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na},
+                  {na, na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na},
+                  {na, na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na},
+                  {na, na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na, na},
+                  {na, na, na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na, na},
+                  {na, na, na, na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na, na},
+                  {na, na, na, na, na, na, na, na, na, na, na, na, na, na}};
+
+    // we need to allow for more iterations to achieve the desired accuracy
+    laplaceInterpolation(m52, tx, ty, 1E-6, 100);
+
+    for (auto const& v : m52) {
+        BOOST_CHECK_CLOSE(v, 1.0, 0.1);
+    }
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

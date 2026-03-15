@@ -12,7 +12,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -88,14 +88,14 @@ namespace QuantLib {
             }
 
             results_.value = this->mcModel_->sampleAccumulator().mean();
-            
+
             if (this->controlVariate_) {
                 // control variate might lead to small negative
                 // option values for deep OTM options
                 this->results_.value = std::max(0.0, this->results_.value);
             }
-                
-            if (RNG::allowsErrorEstimate)
+
+            if constexpr (RNG::allowsErrorEstimate)
                 results_.errorEstimate =
                     this->mcModel_->sampleAccumulator().errorEstimate();
 

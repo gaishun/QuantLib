@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -45,7 +45,7 @@ namespace QuantLib {
         arguments->notionalRisk = notionalRisk_;
         arguments->startDate = issueDate();
     }
-    
+
     void CatBond::fetchResults(const PricingEngine::results* r) const {
         Bond::fetchResults(r);
 
@@ -59,7 +59,7 @@ namespace QuantLib {
 
     FloatingCatBond::FloatingCatBond(Natural settlementDays,
                                      Real faceAmount,
-                                     const Schedule& schedule,
+                                     Schedule schedule,
                                      const ext::shared_ptr<IborIndex>& iborIndex,
                                      const DayCounter& paymentDayCounter,
                                      const ext::shared_ptr<NotionalRisk>& notionalRisk,
@@ -76,7 +76,7 @@ namespace QuantLib {
 
         maturityDate_ = schedule.endDate();
 
-        cashflows_ = IborLeg(schedule, iborIndex)
+        cashflows_ = IborLeg(std::move(schedule), iborIndex)
             .withNotionals(faceAmount)
             .withPaymentDayCounter(paymentDayCounter)
             .withPaymentAdjustment(paymentConvention)

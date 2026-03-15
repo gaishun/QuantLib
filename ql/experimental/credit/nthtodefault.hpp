@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -73,12 +73,12 @@ namespace QuantLib {
         class results;
         class engine;
 
-        //! This product is 'digital'; the basket might be tranched but this is 
+        //! This product is 'digital'; the basket might be tranched but this is
         //  not relevant to it.
         NthToDefault(const ext::shared_ptr<Basket>& basket,
                 Size n,
                 Protection::Side side,
-                const Schedule& premiumSchedule,
+                Schedule premiumSchedule,
                 Rate upfrontRate,
                 Rate premiumRate,
                 const DayCounter& dayCounter,
@@ -162,8 +162,8 @@ namespace QuantLib {
     };
 
     //! NTD base engine
-    class NthToDefault::engine : 
-        public GenericEngine<NthToDefault::arguments, 
+    class NthToDefault::engine :
+        public GenericEngine<NthToDefault::arguments,
                              NthToDefault::results> { };
 
 }

@@ -15,7 +15,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -30,6 +30,7 @@
 #define quantlib_instruments_swaption_hpp
 
 #include <ql/option.hpp>
+#include <ql/instruments/fixedvsfloatingswap.hpp>
 #include <ql/instruments/vanillaswap.hpp>
 #include <ql/termstructures/yieldtermstructure.hpp>
 #include <ql/termstructures/volatility/volatilitytype.hpp>
@@ -59,6 +60,12 @@ namespace QuantLib {
     //! %Swaption class
     /*! \ingroup instruments
 
+        \warning it's possible to pass an overnight-indexed swap to
+                 the constructor, but the only engine to fully support
+                 it is BlackSwaptionEngine; other engines will treat
+                 it as a vanilla swap.  This is at best a decent
+                 proxy, at worst simply wrong.  Use with caution.
+
         \test
         - the correctness of the returned value is tested by checking
           that the price of a payer (resp. receiver) swaption
@@ -80,9 +87,10 @@ namespace QuantLib {
     */
     class Swaption : public Option {
       public:
+        enum PriceType { Spot, Forward };
         class arguments;
         class engine;
-        Swaption(ext::shared_ptr<VanillaSwap> swap,
+        Swaption(ext::shared_ptr<FixedVsFloatingSwap> swap,
                  const ext::shared_ptr<Exercise>& exercise,
                  Settlement::Type delivery = Settlement::Physical,
                  Settlement::Method settlementMethod = Settlement::PhysicalOTC);
@@ -102,7 +110,7 @@ namespace QuantLib {
             return settlementMethod_;
         }
         Swap::Type type() const { return swap_->type(); }
-        const ext::shared_ptr<VanillaSwap>& underlyingSwap() const {
+        const ext::shared_ptr<FixedVsFloatingSwap>& underlying() const {
             return swap_;
         }
         //@}
@@ -116,21 +124,24 @@ namespace QuantLib {
                               Volatility minVol = 1.0e-7,
                               Volatility maxVol = 4.0,
                               VolatilityType type = ShiftedLognormal,
-                              Real displacement = 0.0) const;
+                              Real displacement = 0.0,
+                              PriceType priceType = Spot) const;
       private:
         // arguments
-        ext::shared_ptr<VanillaSwap> swap_;
+        ext::shared_ptr<FixedVsFloatingSwap> swap_;
         //Handle<YieldTermStructure> termStructure_;
         Settlement::Type settlementType_;
         Settlement::Method settlementMethod_;
+        // until we remove underlyingSwap();
+        ext::shared_ptr<VanillaSwap> vanilla_;
     };
 
     //! %Arguments for swaption calculation
-    class Swaption::arguments : public VanillaSwap::arguments,
+    class Swaption::arguments : public FixedVsFloatingSwap::arguments,
                                 public Option::arguments {
       public:
         arguments() = default;
-        ext::shared_ptr<VanillaSwap> swap;
+        ext::shared_ptr<FixedVsFloatingSwap> swap;
         Settlement::Type settlementType = Settlement::Physical;
         Settlement::Method settlementMethod;
         void validate() const override;

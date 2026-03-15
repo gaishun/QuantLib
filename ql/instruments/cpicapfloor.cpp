@@ -11,7 +11,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -56,7 +56,7 @@ namespace QuantLib {
         QL_REQUIRE(fixCalendar_ != Calendar(), "no fixing calendar passed");
         QL_REQUIRE(payCalendar_ != Calendar(), "no payment calendar passed");
 
-        if (!detail::CPI::isInterpolated(index_, observationInterpolation_)) {
+        if (!detail::CPI::isInterpolated(observationInterpolation_)) {
             QL_REQUIRE(observationLag_ >= index_->availabilityLag(),
                        "CPIcapfloor's observationLag must be at least availabilityLag of inflation index: "
                        <<"when the observation is effectively flat"
