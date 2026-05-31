@@ -675,6 +675,9 @@
     <ClInclude Include="ql\indexes\ibor\mosprime.hpp">
       <Filter>indexes\ibor</Filter>
     </ClInclude>
+    <ClInclude Include="ql\indexes\ibor\nibor.hpp">
+      <Filter>indexes\ibor</Filter>
+    </ClInclude>
     <ClInclude Include="ql\indexes\ibor\nzdlibor.hpp">
       <Filter>indexes\ibor</Filter>
     </ClInclude>
@@ -708,9 +711,6 @@
     <ClInclude Include="ql\indexes\ibor\tibor.hpp">
       <Filter>indexes\ibor</Filter>
     </ClInclude>
-    <ClInclude Include="ql\indexes\ibor\tona.hpp">
-      <Filter>indexes\ibor</Filter>
-    </ClInclude>
     <ClInclude Include="ql\indexes\ibor\tonar.hpp">
       <Filter>indexes\ibor</Filter>
     </ClInclude>
@@ -721,6 +721,9 @@
       <Filter>indexes\ibor</Filter>
     </ClInclude>
     <ClInclude Include="ql\indexes\ibor\wibor.hpp">
+      <Filter>indexes\ibor</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\indexes\ibor\zaronia.hpp">
       <Filter>indexes\ibor</Filter>
     </ClInclude>
     <ClInclude Include="ql\indexes\ibor\zibor.hpp">
@@ -820,6 +823,15 @@
       <Filter>instruments</Filter>
     </ClInclude>
     <ClInclude Include="ql\instruments\creditdefaultswap.hpp">
+      <Filter>instruments</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\instruments\constnotionalcrosscurrencybasisswap.hpp">
+      <Filter>instruments</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\instruments\constnotionalcrosscurrencyfixedvsfloatingswap.hpp">
+      <Filter>instruments</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\instruments\constnotionalcrosscurrencyswap.hpp">
       <Filter>instruments</Filter>
     </ClInclude>
     <ClInclude Include="ql\instruments\dividendschedule.hpp">
@@ -1087,6 +1099,9 @@
       <Filter>math\interpolations</Filter>
     </ClInclude>
     <ClInclude Include="ql\math\interpolations\extrapolation.hpp">
+      <Filter>math\interpolations</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\math\interpolations\flatextrapolation.hpp">
       <Filter>math\interpolations</Filter>
     </ClInclude>
     <ClInclude Include="ql\math\interpolations\flatextrapolation2d.hpp">
@@ -2742,6 +2757,9 @@
     <ClInclude Include="ql\pricingengines\swap\all.hpp">
       <Filter>pricingengines\swap</Filter>
     </ClInclude>
+    <ClInclude Include="ql\pricingengines\swap\discountingconstnotionalcrosscurrencyswapengine.hpp">
+      <Filter>pricingengines\swap</Filter>
+    </ClInclude>
     <ClInclude Include="ql\pricingengines\swap\cvaswapengine.hpp">
       <Filter>pricingengines\swap</Filter>
     </ClInclude>
@@ -2800,6 +2818,9 @@
       <Filter>quotes</Filter>
     </ClInclude>
     <ClInclude Include="ql\quotes\lastfixingquote.hpp">
+      <Filter>quotes</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\quotes\multicompositequote.hpp">
       <Filter>quotes</Filter>
     </ClInclude>
     <ClInclude Include="ql\quotes\simplequote.hpp">
@@ -2874,6 +2895,9 @@
     <ClInclude Include="ql\time\calendars\china.hpp">
       <Filter>time\calendars</Filter>
     </ClInclude>
+    <ClInclude Include="ql\time\calendars\croatia.hpp">
+      <Filter>time\calendars</Filter>
+    </ClInclude>
     <ClInclude Include="ql\time\calendars\czechrepublic.hpp">
       <Filter>time\calendars</Filter>
     </ClInclude>
@@ -2904,6 +2928,9 @@
     <ClInclude Include="ql\time\calendars\indonesia.hpp">
       <Filter>time\calendars</Filter>
     </ClInclude>
+    <ClInclude Include="ql\time\calendars\islamicholidays.hpp">
+      <Filter>time\calendars</Filter>
+    </ClInclude>
     <ClInclude Include="ql\time\calendars\israel.hpp">
       <Filter>time\calendars</Filter>
     </ClInclude>
@@ -2916,10 +2943,19 @@
     <ClInclude Include="ql\time\calendars\jointcalendar.hpp">
       <Filter>time\calendars</Filter>
     </ClInclude>
+    <ClInclude Include="ql\time\calendars\malta.hpp">
+      <Filter>time\calendars</Filter>
+    </ClInclude>
     <ClInclude Include="ql\time\calendars\mexico.hpp">
       <Filter>time\calendars</Filter>
     </ClInclude>
+    <ClInclude Include="ql\time\calendars\montenegro.hpp">
+      <Filter>time\calendars</Filter>
+    </ClInclude>
     <ClInclude Include="ql\time\calendars\newzealand.hpp">
+      <Filter>time\calendars</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\time\calendars\northmacedonia.hpp">
       <Filter>time\calendars</Filter>
     </ClInclude>
     <ClInclude Include="ql\time\calendars\norway.hpp">
@@ -2940,10 +2976,16 @@
     <ClInclude Include="ql\time\calendars\saudiarabia.hpp">
       <Filter>time\calendars</Filter>
     </ClInclude>
+    <ClInclude Include="ql\time\calendars\serbia.hpp">
+      <Filter>time\calendars</Filter>
+    </ClInclude>
     <ClInclude Include="ql\time\calendars\singapore.hpp">
       <Filter>time\calendars</Filter>
     </ClInclude>
     <ClInclude Include="ql\time\calendars\slovakia.hpp">
+      <Filter>time\calendars</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\time\calendars\slovenia.hpp">
       <Filter>time\calendars</Filter>
     </ClInclude>
     <ClInclude Include="ql\time\calendars\southafrica.hpp">
@@ -2977,6 +3019,9 @@
       <Filter>time\calendars</Filter>
     </ClInclude>
     <ClInclude Include="ql\time\calendars\unitedstates.hpp">
+      <Filter>time\calendars</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\time\calendars\uzbekistan.hpp">
       <Filter>time\calendars</Filter>
     </ClInclude>
     <ClInclude Include="ql\time\calendars\weekendsonly.hpp">
@@ -3213,32 +3258,11 @@
     <ClInclude Include="ql\experimental\exoticoptions\all.hpp">
       <Filter>experimental\exoticoptions</Filter>
     </ClInclude>
-    <ClInclude Include="ql\experimental\exoticoptions\analyticholderextensibleoptionengine.hpp">
-      <Filter>experimental\exoticoptions</Filter>
-    </ClInclude>
-    <ClInclude Include="ql\experimental\exoticoptions\analyticpartialtimebarrieroptionengine.hpp">
-      <Filter>experimental\exoticoptions</Filter>
-    </ClInclude>
-    <ClInclude Include="ql\experimental\exoticoptions\analyticpdfhestonengine.hpp">
-      <Filter>experimental\exoticoptions</Filter>
-    </ClInclude>
     <ClInclude Include="ql\pricingengines\barrier\binomialbarrierengine.hpp">
       <Filter>pricingengines\barrier</Filter>
     </ClInclude>
     <ClInclude Include="ql\pricingengines\barrier\discretizedbarrieroption.hpp">
       <Filter>pricingengines\barrier</Filter>
-    </ClInclude>
-    <ClInclude Include="ql\experimental\exoticoptions\analytictwoassetbarrierengine.hpp">
-      <Filter>experimental\exoticoptions</Filter>
-    </ClInclude>
-    <ClInclude Include="ql\experimental\exoticoptions\analytictwoassetcorrelationengine.hpp">
-      <Filter>experimental\exoticoptions</Filter>
-    </ClInclude>
-    <ClInclude Include="ql\experimental\exoticoptions\analyticwriterextensibleoptionengine.hpp">
-      <Filter>experimental\exoticoptions</Filter>
-    </ClInclude>
-    <ClInclude Include="ql\experimental\exoticoptions\continuousarithmeticasianlevyengine.hpp">
-      <Filter>experimental\exoticoptions</Filter>
     </ClInclude>
     <ClInclude Include="ql\experimental\exoticoptions\continuousarithmeticasianvecerengine.hpp">
       <Filter>experimental\exoticoptions</Filter>
@@ -3247,9 +3271,6 @@
       <Filter>experimental\exoticoptions</Filter>
     </ClInclude>
     <ClInclude Include="ql\experimental\exoticoptions\himalayaoption.hpp">
-      <Filter>experimental\exoticoptions</Filter>
-    </ClInclude>
-    <ClInclude Include="ql\experimental\exoticoptions\holderextensibleoption.hpp">
       <Filter>experimental\exoticoptions</Filter>
     </ClInclude>
     <ClInclude Include="ql\experimental\exoticoptions\kirkspreadoptionengine.hpp">
@@ -3267,19 +3288,7 @@
     <ClInclude Include="ql\experimental\exoticoptions\pagodaoption.hpp">
       <Filter>experimental\exoticoptions</Filter>
     </ClInclude>
-    <ClInclude Include="ql\experimental\exoticoptions\partialtimebarrieroption.hpp">
-      <Filter>experimental\exoticoptions</Filter>
-    </ClInclude>
     <ClInclude Include="ql\experimental\exoticoptions\spreadoption.hpp">
-      <Filter>experimental\exoticoptions</Filter>
-    </ClInclude>
-    <ClInclude Include="ql\experimental\exoticoptions\twoassetbarrieroption.hpp">
-      <Filter>experimental\exoticoptions</Filter>
-    </ClInclude>
-    <ClInclude Include="ql\experimental\exoticoptions\twoassetcorrelationoption.hpp">
-      <Filter>experimental\exoticoptions</Filter>
-    </ClInclude>
-    <ClInclude Include="ql\experimental\exoticoptions\writerextensibleoption.hpp">
       <Filter>experimental\exoticoptions</Filter>
     </ClInclude>
     <ClInclude Include="ql\experimental\credit\all.hpp">
@@ -4368,6 +4377,9 @@
     <ClInclude Include="ql\methods\finitedifferences\utilities\riskneutraldensitycalculator.hpp">
       <Filter>methods\finitedifferences\utilities</Filter>
     </ClInclude>
+    <ClInclude Include="ql\methods\finitedifferences\utilities\smilesectionrndcalculator.hpp">
+      <Filter>methods\finitedifferences\utilities</Filter>
+    </ClInclude>
     <ClInclude Include="ql\methods\finitedifferences\utilities\squarerootprocessrndcalculator.hpp">
       <Filter>methods\finitedifferences\utilities</Filter>
     </ClInclude>
@@ -4531,6 +4543,9 @@
       <Filter>pricingengines\basket</Filter>
     </ClInclude>
     <ClInclude Include="ql\pricingengines\basket\operatorsplittingspreadengine.hpp">
+      <Filter>pricingengines\basket</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\pricingengines\basket\pearsonspreadengine.hpp">
       <Filter>pricingengines\basket</Filter>
     </ClInclude>
     <ClInclude Include="ql\pricingengines\basket\singlefactorbsmbasketengine.hpp">
@@ -4739,6 +4754,9 @@
     <ClCompile Include="ql\indexes\ibor\sonia.cpp">
       <Filter>indexes\ibor</Filter>
     </ClCompile>
+    <ClCompile Include="ql\indexes\ibor\zaronia.cpp">
+      <Filter>indexes\ibor</Filter>
+    </ClCompile>
     <ClCompile Include="ql\indexes\swap\chfliborswap.cpp">
       <Filter>indexes\swap</Filter>
     </ClCompile>
@@ -4803,6 +4821,15 @@
       <Filter>instruments</Filter>
     </ClCompile>
     <ClCompile Include="ql\instruments\creditdefaultswap.cpp">
+      <Filter>instruments</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\instruments\constnotionalcrosscurrencybasisswap.cpp">
+      <Filter>instruments</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\instruments\constnotionalcrosscurrencyfixedvsfloatingswap.cpp">
+      <Filter>instruments</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\instruments\constnotionalcrosscurrencyswap.cpp">
       <Filter>instruments</Filter>
     </ClCompile>
     <ClCompile Include="ql\instruments\europeanoption.cpp">
@@ -6074,6 +6101,9 @@
     <ClCompile Include="ql\pricingengines\bond\discretizedconvertible.cpp">
       <Filter>pricingengines\bond</Filter>
     </ClCompile>
+    <ClCompile Include="ql\pricingengines\swap\discountingconstnotionalcrosscurrencyswapengine.cpp">
+      <Filter>pricingengines\swap</Filter>
+    </ClCompile>
     <ClCompile Include="ql\pricingengines\swap\cvaswapengine.cpp">
       <Filter>pricingengines\swap</Filter>
     </ClCompile>
@@ -6188,6 +6218,9 @@
     <ClCompile Include="ql\time\calendars\china.cpp">
       <Filter>time\calendars</Filter>
     </ClCompile>
+    <ClCompile Include="ql\time\calendars\croatia.cpp">
+      <Filter>time\calendars</Filter>
+    </ClCompile>
     <ClCompile Include="ql\time\calendars\czechrepublic.cpp">
       <Filter>time\calendars</Filter>
     </ClCompile>
@@ -6218,6 +6251,9 @@
     <ClCompile Include="ql\time\calendars\indonesia.cpp">
       <Filter>time\calendars</Filter>
     </ClCompile>
+    <ClCompile Include="ql\time\calendars\islamicholidays.cpp">
+      <Filter>time\calendars</Filter>
+    </ClCompile>
     <ClCompile Include="ql\time\calendars\israel.cpp">
       <Filter>time\calendars</Filter>
     </ClCompile>
@@ -6230,10 +6266,19 @@
     <ClCompile Include="ql\time\calendars\jointcalendar.cpp">
       <Filter>time\calendars</Filter>
     </ClCompile>
+    <ClCompile Include="ql\time\calendars\malta.cpp">
+      <Filter>time\calendars</Filter>
+    </ClCompile>
     <ClCompile Include="ql\time\calendars\mexico.cpp">
       <Filter>time\calendars</Filter>
     </ClCompile>
+    <ClCompile Include="ql\time\calendars\montenegro.cpp">
+      <Filter>time\calendars</Filter>
+    </ClCompile>
     <ClCompile Include="ql\time\calendars\newzealand.cpp">
+      <Filter>time\calendars</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\time\calendars\northmacedonia.cpp">
       <Filter>time\calendars</Filter>
     </ClCompile>
     <ClCompile Include="ql\time\calendars\norway.cpp">
@@ -6251,10 +6296,16 @@
     <ClCompile Include="ql\time\calendars\saudiarabia.cpp">
       <Filter>time\calendars</Filter>
     </ClCompile>
+    <ClCompile Include="ql\time\calendars\serbia.cpp">
+      <Filter>time\calendars</Filter>
+    </ClCompile>
     <ClCompile Include="ql\time\calendars\singapore.cpp">
       <Filter>time\calendars</Filter>
     </ClCompile>
     <ClCompile Include="ql\time\calendars\slovakia.cpp">
+      <Filter>time\calendars</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\time\calendars\slovenia.cpp">
       <Filter>time\calendars</Filter>
     </ClCompile>
     <ClCompile Include="ql\time\calendars\southafrica.cpp">
@@ -6288,6 +6339,9 @@
       <Filter>time\calendars</Filter>
     </ClCompile>
     <ClCompile Include="ql\time\calendars\unitedstates.cpp">
+      <Filter>time\calendars</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\time\calendars\uzbekistan.cpp">
       <Filter>time\calendars</Filter>
     </ClCompile>
     <ClCompile Include="ql\time\calendars\weekendsonly.cpp">
@@ -7228,6 +7282,9 @@
     <ClCompile Include="ql\methods\finitedifferences\utilities\riskneutraldensitycalculator.cpp">
       <Filter>methods\finitedifferences\utilities</Filter>
     </ClCompile>
+    <ClCompile Include="ql\methods\finitedifferences\utilities\smilesectionrndcalculator.cpp">
+      <Filter>methods\finitedifferences\utilities</Filter>
+    </ClCompile>
     <ClCompile Include="ql\methods\finitedifferences\utilities\squarerootprocessrndcalculator.cpp">
       <Filter>methods\finitedifferences\utilities</Filter>
     </ClCompile>
@@ -7358,6 +7415,9 @@
       <Filter>pricingengines\basket</Filter>
     </ClCompile>
     <ClCompile Include="ql\pricingengines\basket\operatorsplittingspreadengine.cpp">
+      <Filter>pricingengines\basket</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\pricingengines\basket\pearsonspreadengine.cpp">
       <Filter>pricingengines\basket</Filter>
     </ClCompile>
     <ClCompile Include="ql\pricingengines\basket\singlefactorbsmbasketengine.cpp">

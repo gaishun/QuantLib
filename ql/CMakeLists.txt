@@ -223,6 +223,7 @@ set(QL_SOURCES
     indexes/ibor/shibor.cpp
     indexes/ibor/sofr.cpp
     indexes/ibor/sonia.cpp
+    indexes/ibor/zaronia.cpp
     indexes/iborindex.cpp
     indexes/indexmanager.cpp
     indexes/inflationindex.cpp
@@ -264,6 +265,9 @@ set(QL_SOURCES
     instruments/cpicapfloor.cpp
     instruments/cpiswap.cpp
     instruments/creditdefaultswap.cpp
+    instruments/constnotionalcrosscurrencybasisswap.cpp
+    instruments/constnotionalcrosscurrencyfixedvsfloatingswap.cpp
+    instruments/constnotionalcrosscurrencyswap.cpp
     instruments/doublebarrieroption.cpp
     instruments/doublebarriertype.cpp
     instruments/equitytotalreturnswap.cpp
@@ -511,6 +515,7 @@ set(QL_SOURCES
     methods/finitedifferences/utilities/hestonrndcalculator.cpp
     methods/finitedifferences/utilities/localvolrndcalculator.cpp
     methods/finitedifferences/utilities/riskneutraldensitycalculator.cpp
+    methods/finitedifferences/utilities/smilesectionrndcalculator.cpp
     methods/finitedifferences/utilities/squarerootprocessrndcalculator.cpp
     methods/lattices/binomialtree.cpp
     methods/lattices/trinomialtree.cpp
@@ -681,6 +686,7 @@ set(QL_SOURCES
     pricingengines/basket/mcamericanbasketengine.cpp
     pricingengines/basket/mceuropeanbasketengine.cpp
     pricingengines/basket/operatorsplittingspreadengine.cpp
+    pricingengines/basket/pearsonspreadengine.cpp
     pricingengines/basket/singlefactorbsmbasketengine.cpp
     pricingengines/basket/spreadblackscholesvanillaengine.cpp
     pricingengines/basket/stulzengine.cpp
@@ -725,6 +731,7 @@ set(QL_SOURCES
     pricingengines/lookback/analyticcontinuouspartialfixedlookback.cpp
     pricingengines/lookback/analyticcontinuouspartialfloatinglookback.cpp
     pricingengines/lookback/mclookbackengine.cpp
+    pricingengines/swap/discountingconstnotionalcrosscurrencyswapengine.cpp
     pricingengines/swap/cvaswapengine.cpp
     pricingengines/swap/discountingswapengine.cpp
     pricingengines/swap/discretizedswap.cpp
@@ -899,6 +906,7 @@ set(QL_SOURCES
     time/calendars/canada.cpp
     time/calendars/chile.cpp
     time/calendars/china.cpp
+    time/calendars/croatia.cpp
     time/calendars/czechrepublic.cpp
     time/calendars/denmark.cpp
     time/calendars/finland.cpp
@@ -909,19 +917,25 @@ set(QL_SOURCES
     time/calendars/iceland.cpp
     time/calendars/india.cpp
     time/calendars/indonesia.cpp
+    time/calendars/islamicholidays.cpp
     time/calendars/israel.cpp
     time/calendars/italy.cpp
     time/calendars/japan.cpp
     time/calendars/jointcalendar.cpp
+    time/calendars/malta.cpp
     time/calendars/mexico.cpp
+    time/calendars/montenegro.cpp
     time/calendars/newzealand.cpp
+    time/calendars/northmacedonia.cpp
     time/calendars/norway.cpp
     time/calendars/poland.cpp
     time/calendars/romania.cpp
     time/calendars/russia.cpp
     time/calendars/saudiarabia.cpp
+    time/calendars/serbia.cpp
     time/calendars/singapore.cpp
     time/calendars/slovakia.cpp
+    time/calendars/slovenia.cpp
     time/calendars/southafrica.cpp
     time/calendars/southkorea.cpp
     time/calendars/sweden.cpp
@@ -933,6 +947,7 @@ set(QL_SOURCES
     time/calendars/ukraine.cpp
     time/calendars/unitedkingdom.cpp
     time/calendars/unitedstates.cpp
+    time/calendars/uzbekistan.cpp
     time/calendars/weekendsonly.cpp
     time/date.cpp
     time/dategenerationrule.cpp
@@ -1115,27 +1130,15 @@ set(QL_HEADERS
     experimental/credit/spotlosslatentmodel.hpp
     experimental/credit/spreadedhazardratecurve.hpp
     experimental/credit/syntheticcdo.hpp
-    experimental/exoticoptions/analyticholderextensibleoptionengine.hpp
-    experimental/exoticoptions/analyticpartialtimebarrieroptionengine.hpp
-    experimental/exoticoptions/analyticpdfhestonengine.hpp
-    experimental/exoticoptions/analytictwoassetbarrierengine.hpp
-    experimental/exoticoptions/analytictwoassetcorrelationengine.hpp
-    experimental/exoticoptions/analyticwriterextensibleoptionengine.hpp
-    experimental/exoticoptions/continuousarithmeticasianlevyengine.hpp
     experimental/exoticoptions/continuousarithmeticasianvecerengine.hpp
     experimental/exoticoptions/everestoption.hpp
     experimental/exoticoptions/himalayaoption.hpp
-    experimental/exoticoptions/holderextensibleoption.hpp
     experimental/exoticoptions/kirkspreadoptionengine.hpp
     experimental/exoticoptions/mceverestengine.hpp
     experimental/exoticoptions/mchimalayaengine.hpp
     experimental/exoticoptions/mcpagodaengine.hpp
     experimental/exoticoptions/pagodaoption.hpp
-    experimental/exoticoptions/partialtimebarrieroption.hpp
     experimental/exoticoptions/spreadoption.hpp
-    experimental/exoticoptions/twoassetbarrieroption.hpp
-    experimental/exoticoptions/twoassetcorrelationoption.hpp
-    experimental/exoticoptions/writerextensibleoption.hpp
     experimental/finitedifferences/dynprogvppintrinsicvalueengine.hpp
     experimental/finitedifferences/fdextoujumpvanillaengine.hpp
     experimental/finitedifferences/fdklugeextouspreadengine.hpp
@@ -1281,6 +1284,7 @@ set(QL_HEADERS
     indexes/ibor/kofr.hpp
     indexes/ibor/libor.hpp
     indexes/ibor/mosprime.hpp
+    indexes/ibor/nibor.hpp
     indexes/ibor/nzdlibor.hpp
     indexes/ibor/nzocr.hpp
     indexes/ibor/pribor.hpp
@@ -1293,11 +1297,11 @@ set(QL_HEADERS
     indexes/ibor/swestr.hpp
     indexes/ibor/thbfix.hpp
     indexes/ibor/tibor.hpp
-    indexes/ibor/tona.hpp
     indexes/ibor/tonar.hpp
     indexes/ibor/trlibor.hpp
     indexes/ibor/usdlibor.hpp
     indexes/ibor/wibor.hpp
+    indexes/ibor/zaronia.hpp
     indexes/ibor/zibor.hpp
     indexes/iborindex.hpp
     indexes/indexmanager.hpp
@@ -1348,6 +1352,9 @@ set(QL_HEADERS
     instruments/cpicapfloor.hpp
     instruments/cpiswap.hpp
     instruments/creditdefaultswap.hpp
+    instruments/constnotionalcrosscurrencybasisswap.hpp
+    instruments/constnotionalcrosscurrencyfixedvsfloatingswap.hpp
+    instruments/constnotionalcrosscurrencyswap.hpp
     instruments/dividendschedule.hpp
     instruments/doublebarrieroption.hpp
     instruments/doublebarriertype.hpp
@@ -1482,6 +1489,7 @@ set(QL_HEADERS
     math/interpolations/convexmonotoneinterpolation.hpp
     math/interpolations/cubicinterpolation.hpp
     math/interpolations/extrapolation.hpp
+    math/interpolations/flatextrapolation.hpp
     math/interpolations/flatextrapolation2d.hpp
     math/interpolations/forwardflatinterpolation.hpp
     math/interpolations/interpolation2d.hpp
@@ -1699,6 +1707,7 @@ set(QL_HEADERS
     methods/finitedifferences/utilities/hestonrndcalculator.hpp
     methods/finitedifferences/utilities/localvolrndcalculator.hpp
     methods/finitedifferences/utilities/riskneutraldensitycalculator.hpp
+    methods/finitedifferences/utilities/smilesectionrndcalculator.hpp
     methods/finitedifferences/utilities/squarerootprocessrndcalculator.hpp
     methods/finitedifferences/zerocondition.hpp
     methods/lattices/binomialtree.hpp
@@ -1916,6 +1925,7 @@ set(QL_HEADERS
     pricingengines/basket/mcamericanbasketengine.hpp
     pricingengines/basket/mceuropeanbasketengine.hpp
     pricingengines/basket/operatorsplittingspreadengine.hpp
+    pricingengines/basket/pearsonspreadengine.hpp
     pricingengines/basket/singlefactorbsmbasketengine.hpp
     pricingengines/basket/spreadblackscholesvanillaengine.hpp
     pricingengines/basket/stulzengine.hpp
@@ -1971,6 +1981,7 @@ set(QL_HEADERS
     pricingengines/mclongstaffschwartzengine.hpp
     pricingengines/mcsimulation.hpp
     pricingengines/quanto/quantoengine.hpp
+    pricingengines/swap/discountingconstnotionalcrosscurrencyswapengine.hpp
     pricingengines/swap/cvaswapengine.hpp
     pricingengines/swap/discountingswapengine.hpp
     pricingengines/swap/discretizedswap.hpp
@@ -2060,6 +2071,7 @@ set(QL_HEADERS
     quotes/futuresconvadjustmentquote.hpp
     quotes/impliedstddevquote.hpp
     quotes/lastfixingquote.hpp
+    quotes/multicompositequote.hpp
     quotes/simplequote.hpp
     rebatedexercise.hpp
     settings.hpp
@@ -2200,6 +2212,7 @@ set(QL_HEADERS
     time/calendars/canada.hpp
     time/calendars/chile.hpp
     time/calendars/china.hpp
+    time/calendars/croatia.hpp
     time/calendars/czechrepublic.hpp
     time/calendars/denmark.hpp
     time/calendars/finland.hpp
@@ -2210,20 +2223,26 @@ set(QL_HEADERS
     time/calendars/iceland.hpp
     time/calendars/india.hpp
     time/calendars/indonesia.hpp
+    time/calendars/islamicholidays.hpp
     time/calendars/israel.hpp
     time/calendars/italy.hpp
     time/calendars/japan.hpp
     time/calendars/jointcalendar.hpp
+    time/calendars/malta.hpp
     time/calendars/mexico.hpp
+    time/calendars/montenegro.hpp
     time/calendars/newzealand.hpp
+    time/calendars/northmacedonia.hpp
     time/calendars/norway.hpp
     time/calendars/nullcalendar.hpp
     time/calendars/poland.hpp
     time/calendars/romania.hpp
     time/calendars/russia.hpp
     time/calendars/saudiarabia.hpp
+    time/calendars/serbia.hpp
     time/calendars/singapore.hpp
     time/calendars/slovakia.hpp
+    time/calendars/slovenia.hpp
     time/calendars/southafrica.hpp
     time/calendars/southkorea.hpp
     time/calendars/sweden.hpp
@@ -2235,6 +2254,7 @@ set(QL_HEADERS
     time/calendars/ukraine.hpp
     time/calendars/unitedkingdom.hpp
     time/calendars/unitedstates.hpp
+    time/calendars/uzbekistan.hpp
     time/calendars/weekendsonly.hpp
     time/date.hpp
     time/dategenerationrule.hpp

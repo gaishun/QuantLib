@@ -72,7 +72,8 @@ namespace QuantLib {
                     bool applyObservationShift = false,
                     bool compoundSpread = false,
                     const Date& rateComputationStartDate = Date(),
-                    const Date& rateComputationEndDate = Date());
+                    const Date& rateComputationEndDate = Date(),
+                    const Date& exCouponDate = Date());
         //! \name Inspectors
         //@{
         //! fixing dates for the rates to be compounded
@@ -227,7 +228,6 @@ namespace QuantLib {
         OvernightLeg& withLockoutDays(Natural lockoutDays);
         OvernightLeg& withObservationShift(bool applyObservationShift = true);
         OvernightLeg& compoundingSpreadDaily(bool compoundSpreadDaily = true);
-        OvernightLeg& withLookback(const Period& lookback);
         OvernightLeg& withCaps(Rate cap);
         OvernightLeg& withCaps(const std::vector<Rate>& caps);
         OvernightLeg& withFloors(Rate floor);

@@ -41,6 +41,9 @@ set(QL_TEST_SOURCES
     convertiblebonds.cpp
     covariance.cpp
     creditdefaultswap.cpp
+    constnotionalcrosscurrencybasisswap.cpp
+    constnotionalcrosscurrencyfixedvsfloatingswap.cpp
+    constnotionalcrosscurrencyswap.cpp
     crosscurrencyratehelpers.cpp
     currency.cpp
     curvestates.cpp
@@ -68,10 +71,12 @@ set(QL_TEST_SOURCES
     fdmlinearop.cpp
     fdsabr.cpp
     fittedbonddiscountcurve.cpp
+    floatfloatswap.cpp
     forwardoption.cpp
     forwardrateagreement.cpp
     functions.cpp
     fxforward.cpp
+    g2process.cpp
     garch.cpp
     gaussianquadratures.cpp
     gjrgarchmodel.cpp

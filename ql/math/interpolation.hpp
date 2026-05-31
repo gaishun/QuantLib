@@ -44,8 +44,9 @@
 #include <ql/math/interpolations/extrapolation.hpp>
 #include <ql/math/comparison.hpp>
 #include <ql/errors.hpp>
-#include <vector>
 #include <algorithm>
+#include <type_traits>
+#include <vector>
 
 namespace QuantLib {
 
@@ -68,7 +69,7 @@ namespace QuantLib {
                  on the latter when the data change.
     */
     class Interpolation : public Extrapolator {
-      protected:
+      public:
         //! abstract base class for interpolation implementations
         class Impl {
           public:
@@ -84,15 +85,16 @@ namespace QuantLib {
             virtual Real derivative(Real) const = 0;
             virtual Real secondDerivative(Real) const = 0;
         };
-        ext::shared_ptr<Impl> impl_;
-      public:
         //! basic template implementation
-        template <class I1, class I2>
-        class templateImpl : public Impl {
+        template <class I1, class I2, class Base=Impl>
+        class templateImpl : public Base {
           public:
+            templateImpl(const I1& xBegin, const I1& xEnd, const I2& yBegin)
+            : templateImpl(xBegin, xEnd, yBegin, 2) {}
+            template <class... Args>
             templateImpl(const I1& xBegin, const I1& xEnd, const I2& yBegin,
-                         const int requiredPoints = 2)
-            : xBegin_(xBegin), xEnd_(xEnd), yBegin_(yBegin) {
+                         const int requiredPoints, Args&&... args)
+            : Base(std::forward<Args>(args)...), xBegin_(xBegin), xEnd_(xEnd), yBegin_(yBegin) {
                 QL_REQUIRE(static_cast<std::ptrdiff_t>(xEnd_-xBegin_) >= requiredPoints,
                            "not enough points to interpolate: at least " <<
                            requiredPoints <<
@@ -154,6 +156,12 @@ namespace QuantLib {
         Real xMax() const {
             return impl_->xMax();
         }
+        std::vector<Real> xValues() const {
+            return impl_->xValues();
+        }
+        std::vector<Real> yValues() const {
+            return impl_->yValues();
+        }
         bool isInRange(Real x) const {
             return impl_->isInRange(x);
         }
@@ -161,6 +169,8 @@ namespace QuantLib {
             impl_->update();
         }
       protected:
+        ext::shared_ptr<Impl> impl_;
+
         void checkRange(Real x, bool extrapolate) const {
             QL_REQUIRE(extrapolate || allowsExtrapolation() ||
                        impl_->isInRange(x),
@@ -171,6 +181,23 @@ namespace QuantLib {
         friend class MixedLinearCubicInterpolation;
     };
 
+    namespace detail {
+
+        template <class Interpolator, class I1, class I2>
+        Interpolation interpolateWithoutUpdate(const Interpolator& interpolator,
+                                               const I1& xBegin,
+                                               const I1& xEnd,
+                                               const I2& yBegin) {
+            if constexpr (std::is_invocable_v<decltype(&Interpolator::template interpolate<I1, I2>),
+                                              const Interpolator&,
+                                              const I1&, const I1&, const I2&, bool>) {
+                return interpolator.interpolate(xBegin, xEnd, yBegin, false);
+            } else {
+                return interpolator.interpolate(xBegin, xEnd, yBegin);
+            }
+        }
+
+    }
 }
 
 #endif

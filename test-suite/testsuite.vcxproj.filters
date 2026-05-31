@@ -182,6 +182,9 @@
     <ClCompile Include="forwardrateagreement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="g2process.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="garch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -498,10 +501,22 @@
     <ClCompile Include="fittedbonddiscountcurve.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="floatfloatswap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="ultimateforwardtermstructure.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="basisswapratehelpers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="constnotionalcrosscurrencybasisswap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="constnotionalcrosscurrencyfixedvsfloatingswap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="constnotionalcrosscurrencyswap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="crosscurrencyratehelpers.cpp">

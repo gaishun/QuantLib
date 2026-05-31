@@ -686,6 +686,9 @@
     <ClCompile Include="convertiblebonds.cpp" />
     <ClCompile Include="covariance.cpp" />
     <ClCompile Include="creditdefaultswap.cpp" />
+    <ClCompile Include="constnotionalcrosscurrencybasisswap.cpp" />
+    <ClCompile Include="constnotionalcrosscurrencyfixedvsfloatingswap.cpp" />
+    <ClCompile Include="constnotionalcrosscurrencyswap.cpp" />
     <ClCompile Include="crosscurrencyratehelpers.cpp" />
     <ClCompile Include="currency.cpp" />
     <ClCompile Include="curvestates.cpp" />
@@ -709,6 +712,7 @@
     <ClCompile Include="fdcev.cpp" />
     <ClCompile Include="fdsabr.cpp" />
     <ClCompile Include="fittedbonddiscountcurve.cpp" />
+    <ClCompile Include="floatfloatswap.cpp" />
     <ClCompile Include="functions.cpp" />
     <ClCompile Include="fastfouriertransform.cpp" />
     <ClCompile Include="fdheston.cpp" />
@@ -717,6 +721,7 @@
     <ClCompile Include="forwardoption.cpp" />
     <ClCompile Include="forwardrateagreement.cpp" />
     <ClCompile Include="fxforward.cpp" />
+    <ClCompile Include="g2process.cpp" />
     <ClCompile Include="garch.cpp" />
     <ClCompile Include="gaussianquadratures.cpp" />
     <ClCompile Include="gjrgarchmodel.cpp" />
